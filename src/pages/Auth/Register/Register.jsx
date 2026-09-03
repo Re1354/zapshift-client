@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { NavLink, useLocation, useNavigate } from 'react-router';
+import Swal from 'sweetalert2';
 
 import ImgUpIcon from '../../../assets/image-upload-icon.png';
 import useAuth from '../../../hooks/useAuth';
 import GoogleLogin from '../SocialLogin/GoogleLogin';
+import useAxiosSecure from '../../../hooks/useAxiosSecure';
 
 const Register = () => {
   const [photoPreview, setPhotoPreview] = useState(null);
@@ -20,6 +22,7 @@ const Register = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const axiosSecure = useAxiosSecure();
 
   // Keep the original destination
   const from = location.state?.from?.pathname || '/';
@@ -48,8 +51,6 @@ const Register = () => {
       // 1. Create Firebase user
       const result = await registerUser(data.email, data.password);
 
-      console.log('Registration successful:', result.user);
-
       // 2. Get selected photo
       const profileImg = data.photo?.[0];
 
@@ -68,13 +69,23 @@ const Register = () => {
 
       const photoURL = imageResponse.data.data.url;
 
-      console.log('Image uploaded:', photoURL);
+      const userInfo = {
+        email: data.email,
+        displayName: data.name,
+        photoURL: photoURL,
+      };
 
       // 4. Update Firebase user profile
       const userProfile = {
         displayName: data.name,
         photoURL: photoURL,
       };
+
+      axiosSecure.post('/users', userInfo).then(res => {
+        if (res.data.insertedId) {
+          console.log('User created in the database');
+        }
+      });
 
       await updateUserProfile(userProfile);
 
@@ -84,6 +95,32 @@ const Register = () => {
       navigate(from, { replace: true });
     } catch (error) {
       console.error('Registration error:', error);
+
+      // ================= Email Already Exists =================
+      if (error.code === 'auth/email-already-in-use') {
+        Swal.fire({
+          icon: 'error',
+          title: 'Email Already Exists',
+          text: 'Please login with this email instead.',
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+        });
+      } else {
+        // ================= Other Registration Errors =================
+        Swal.fire({
+          icon: 'error',
+          title: 'Registration Failed',
+          text: error.message || 'Something went wrong. Please try again.',
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+        });
+      }
     }
   };
 

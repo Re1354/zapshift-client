@@ -17,7 +17,7 @@ const googleProvider = new GoogleAuthProvider();
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // ✅ Fix 1: true not false
 
   const registerUser = (email, password) => {
     setLoading(true);
@@ -58,6 +58,7 @@ const AuthProvider = ({ children }) => {
     signInUser,
     signInGoogle,
     user,
+    loading,
     logOut,
     updateUserProfile,
   };

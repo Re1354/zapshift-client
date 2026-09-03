@@ -1,29 +1,49 @@
 import React from 'react';
-
 import { useLocation, useNavigate } from 'react-router';
 
 import useAuth from '../../../hooks/useAuth';
+import useAxiosSecure from '../../../hooks/useAxiosSecure';
 
 const GoogleLogin = () => {
   const { signInGoogle } = useAuth();
+  const axiosSecure = useAxiosSecure();
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Get the original protected route
   const from = location.state?.from?.pathname || '/';
 
-  const handleSignIn = () => {
-    signInGoogle()
-      .then(result => {
-        console.log('Google login successful:', result.user);
+  const handleSignIn = async () => {
+    try {
+      const result = await signInGoogle();
 
-        // Redirect to the original page
-        navigate(from, { replace: true });
-      })
-      .catch(error => {
-        console.log('Google login error:', error);
+      console.log('Google login successful:', result.user);
+
+      // Get Firebase ID token
+      const token = await result.user.getIdToken();
+
+      console.log('Firebase token received:', !!token);
+
+      const userInfo = {
+        email: result.user.email,
+        displayName: result.user.displayName,
+        photoURL: result.user.photoURL,
+      };
+
+      // Send token directly with this request
+      const res = await axiosSecure.post('/users', userInfo, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+
+      console.log('User data has been stored:', res.data);
+
+      navigate(from, { replace: true });
+    } catch (error) {
+      console.log('Google login error:', error);
+      console.log('Backend response:', error?.response?.data);
+    }
   };
 
   return (

@@ -1,6 +1,5 @@
 import { createBrowserRouter } from 'react-router';
 import RootLayout from '../layouts/RootLayout';
-import { Component } from 'react';
 import Home from '../pages/Home/Home/Home';
 import Coverage from '../pages/Coverage/Coverage';
 import AuthLayout from '../layouts/AuthLayout';
@@ -14,6 +13,15 @@ import SendParcel from '../pages/SendParcel/SendParcel';
 import DashboardLayout from '../layouts/DashboardLayout';
 import MyParcels from '../pages/Dashboard/MyParcels/MyParcels';
 import Payment from '../pages/Dashboard/Payment/Payment';
+import PaymentSuccess from '../pages/Dashboard/Payment/PaymentSuccess';
+import PaymentCancelled from '../pages/Dashboard/Payment/PaymentCancelled';
+import PaymentHistory from '../pages/Dashboard/PaymentHistory/PaymentHistory';
+import UsersManagement from '../pages/Dashboard/UsersManagement/UsersManagement';
+import ApproveRiders from '../pages/Dashboard/ApproveRiders/ApproveRiders';
+import AdminRoute from './AdminRoute';
+import AssignRiders from '../pages/Dashboard/AssignRiders/AssignRiders';
+import AssignedDeliveries from '../pages/Dashboard/AssignedDeliveries/AssignedDeliveries';
+import RiderRoute from './RiderRoute';
 
 export const router = createBrowserRouter([
   {
@@ -41,7 +49,7 @@ export const router = createBrowserRouter([
         path: 'send-parcel',
         element: (
           <PrivateRoute>
-            <SendParcel></SendParcel>
+            <SendParcel />
           </PrivateRoute>
         ),
         loader: () => fetch('/serviceCenters.json').then(res => res.json()),
@@ -50,9 +58,10 @@ export const router = createBrowserRouter([
         path: 'rider',
         element: (
           <PrivateRoute>
-            <Rider></Rider>
+            <Rider />
           </PrivateRoute>
         ),
+        loader: () => fetch('/serviceCenters.json').then(res => res.json()),
       },
     ],
   },
@@ -74,7 +83,7 @@ export const router = createBrowserRouter([
     path: 'dashboard',
     element: (
       <PrivateRoute>
-        <DashboardLayout></DashboardLayout>
+        <DashboardLayout />
       </PrivateRoute>
     ),
     children: [
@@ -85,6 +94,50 @@ export const router = createBrowserRouter([
       {
         path: 'payment/:parcelId',
         Component: Payment,
+      },
+      {
+        path: 'payment-success',
+        Component: PaymentSuccess,
+      },
+      {
+        path: 'payment-cancelled',
+        Component: PaymentCancelled,
+      },
+      {
+        path: 'payment-history',
+        Component: PaymentHistory,
+      },
+      {
+        path: 'approve-riders',
+        element: (
+          <AdminRoute>
+            <ApproveRiders />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: 'users-management',
+        element: (
+          <AdminRoute>
+            <UsersManagement></UsersManagement>
+          </AdminRoute>
+        ),
+      },
+      {
+        path: 'assign-riders',
+        element: (
+          <AdminRoute>
+            <AssignRiders></AssignRiders>
+          </AdminRoute>
+        ),
+      },
+      {
+        path: 'assigned-deliveries',
+        element: (
+          <RiderRoute>
+            <AssignedDeliveries></AssignedDeliveries>
+          </RiderRoute>
+        ),
       },
     ],
   },

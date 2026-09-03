@@ -3,10 +3,12 @@ import { NavLink, useNavigate } from 'react-router';
 
 import Logo from '../../../../Components/Logo/Logo';
 import useAuth from '../../../../hooks/useAuth';
+import useRole from '../../../../hooks/useRole';
 
 const Navbar = () => {
   const { user, logOut } = useAuth();
   const navigate = useNavigate();
+  const { role } = useRole();
 
   const handleLogOut = () => {
     logOut()
@@ -69,8 +71,11 @@ const Navbar = () => {
       {user && (
         <>
           <li>
-            <NavLink to="/dashboard/my-parcels" className={navLinkClass}>
-              My Parcels
+            <NavLink
+              to={role === 'admin' ? '/dashboard' : '/dashboard/my-parcels'}
+              className={navLinkClass}
+            >
+              {role === 'admin' ? 'Dashboard' : 'My Parcels'}
             </NavLink>
           </li>
         </>

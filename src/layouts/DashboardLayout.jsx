@@ -3,9 +3,11 @@ import { Link, NavLink, Outlet, useNavigate } from 'react-router';
 import useAuth from '../hooks/useAuth';
 import Navbar from '../pages/Home/Shared/NavBar/Navbar';
 import Logo from '../Components/Logo/Logo';
+import useRole from '../hooks/useRole';
 
 const DashboardLayout = () => {
   const { user, logOut } = useAuth();
+  const { role } = useRole();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -31,7 +33,7 @@ const DashboardLayout = () => {
         {/* Logo */}
         <div className="flex h-[60px] items-center border-b border-gray-100 px-4">
           <Link
-            to="/dashboard"
+            to="/"
             className="text-xl font-extrabold tracking-tight text-secondary"
           >
             <Logo></Logo>
@@ -136,6 +138,122 @@ const DashboardLayout = () => {
 
               <span>Profile</span>
             </NavLink>
+
+            {/* rider only route  */}
+            {role === 'rider' && (
+              <>
+                <NavLink
+                  to="/dashboard/assigned-deliveries"
+                  className={navLinkClass}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                  >
+                    {/* Truck */}
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M3 6h11v11H3z"
+                    />
+
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M14 10h4l3 3v4h-7z"
+                    />
+
+                    {/* Wheels */}
+                    <circle cx="7" cy="18" r="2" />
+                    <circle cx="18" cy="18" r="2" />
+
+                    {/* Assignment check */}
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M8 10l2 2 4-4"
+                    />
+                  </svg>
+
+                  <span>Assigned Deliveries</span>
+                </NavLink>
+              </>
+            )}
+            {/* admin only route  */}
+            {role === 'admin' && (
+              <>
+                <NavLink
+                  to="/dashboard/approve-riders"
+                  className={navLinkClass}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                  >
+                    <circle cx="7" cy="17" r="3" />
+                    <circle cx="18" cy="17" r="3" />
+
+                    <path d="M7 17l3-7h4l4 7" />
+                    <path d="M10 10l3 7" />
+                    <path d="M10 10h-2" />
+
+                    <circle cx="12" cy="5" r="2.5" />
+                    <path d="M10.5 8l2.5 2 3-1" />
+
+                    <path d="M16 9l2 2 1.5-2" />
+                  </svg>
+
+                  <span>Approve Riders</span>
+                </NavLink>
+
+                <NavLink
+                  to="/dashboard/users-management"
+                  className={navLinkClass}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                  >
+                    <circle cx="9" cy="8" r="3" />
+                    <path d="M3.5 19c.5-3.2 2.4-5 5.5-5s5 1.8 5.5 5" />
+
+                    <circle cx="17" cy="9" r="2.5" />
+                    <path d="M15.5 14.5c2.8-.2 4.6 1.4 5 4.5" />
+                  </svg>
+
+                  <span>Users Management</span>
+                </NavLink>
+
+                <NavLink to="/dashboard/assign-riders" className={navLinkClass}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                  >
+                    <circle cx="9" cy="8" r="3" />
+                    <path d="M3.5 19c.5-3.2 2.4-5 5.5-5s5 1.8 5.5 5" />
+                    <path d="M15 15l2 2 4-4" />
+                  </svg>
+
+                  <span>Assign Riders</span>
+                </NavLink>
+              </>
+            )}
           </nav>
 
           {/* Divider */}
