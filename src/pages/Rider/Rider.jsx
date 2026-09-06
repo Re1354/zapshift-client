@@ -94,36 +94,35 @@ const Rider = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#eef0f1] px-4 py-6 md:px-8 md:py-8">
-      <div className="mx-auto max-w-[1400px] rounded-[22px] bg-white px-7 py-12 md:px-14 lg:px-16">
-        {/* ================= Header ================= */}
-        <div className="mb-8">
-          <h1 className="text-[38px] font-bold leading-tight text-[#003b40]">
-            Be a Rider
-          </h1>
+    <div className="w-full rounded-3xl bg-white p-6 sm:p-10 lg:p-14 shadow-sm">
+      {/* ================= Header ================= */}
+      <div>
+        <h1 className="text-3xl font-extrabold tracking-tight text-secondary sm:text-4xl md:text-5xl">
+          Be a Rider
+        </h1>
 
-          <p className="mt-3 max-w-[600px] text-[13px] leading-[1.7] text-[#777777]">
-            Enjoy fast, reliable parcel delivery with real-time tracking and
-            zero hassle. From personal packages to business shipments — we
-            deliver on time, every time.
-          </p>
-        </div>
+        <p className="mt-3 max-w-[560px] text-xs leading-6 text-gray-500 sm:text-sm">
+          Enjoy fast, reliable parcel delivery with real-time tracking and
+          zero hassle. From personal packages to business shipments — we
+          deliver on time, every time.
+        </p>
+      </div>
 
-        {/* ================= Divider ================= */}
-        <div className="border-t border-[#e5e5e5]" />
+      {/* ================= Divider ================= */}
+      <div className="my-6 sm:my-8 border-t border-gray-100" />
 
-        {/* ================= Form ================= */}
-        <form onSubmit={handleSubmit(handleRiderApplication)}>
-          <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_1fr]">
-            {/* ================= Left Side ================= */}
-            <div className="max-w-[500px]">
-              <h2 className="mb-5 text-[21px] font-bold text-[#003b40]">
-                Tell us about yourself
-              </h2>
+      {/* ================= Form ================= */}
+      <form onSubmit={handleSubmit(handleRiderApplication)}>
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_1fr]">
+          {/* ================= Left Side ================= */}
+          <div className="max-w-[500px]">
+            <h2 className="mb-5 text-[21px] font-bold text-secondary">
+              Tell us about yourself
+            </h2>
 
               {/* ================= Name ================= */}
               <div className="mb-4">
-                <label className="mb-1.5 block text-[11px] font-medium text-[#222222]">
+                <label className="mb-1.5 block text-xs font-semibold text-secondary">
                   Your Name
                 </label>
 
@@ -133,11 +132,11 @@ const Rider = () => {
                   {...register('name', {
                     required: 'Name is required',
                   })}
-                  className="h-[38px] w-full rounded-[5px] border border-[#d6dde2] bg-white px-3 text-[12px] text-[#333333] outline-none placeholder:text-[#a9b8c7] focus:border-[#9acb28]"
+                  className="h-10 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-xs text-secondary outline-none transition placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
 
                 {errors.name && (
-                  <p className="mt-1 text-[10px] text-red-500">
+                  <p className="mt-1 text-[11px] text-red-500">
                     {errors.name.message}
                   </p>
                 )}
@@ -145,7 +144,7 @@ const Rider = () => {
 
               {/* ================= Driving License ================= */}
               <div className="mb-4">
-                <label className="mb-1.5 block text-[11px] font-medium text-[#222222]">
+                <label className="mb-1.5 block text-xs font-semibold text-secondary">
                   Driving License Number
                 </label>
 
@@ -155,11 +154,11 @@ const Rider = () => {
                   {...register('licenseNumber', {
                     required: 'Driving license number is required',
                   })}
-                  className="h-[38px] w-full rounded-[5px] border border-[#d6dde2] bg-white px-3 text-[12px] text-[#333333] outline-none placeholder:text-[#a9b8c7] focus:border-[#9acb28]"
+                  className="h-10 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-xs text-secondary outline-none transition placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
 
                 {errors.licenseNumber && (
-                  <p className="mt-1 text-[10px] text-red-500">
+                  <p className="mt-1 text-[11px] text-red-500">
                     {errors.licenseNumber.message}
                   </p>
                 )}
@@ -167,7 +166,7 @@ const Rider = () => {
 
               {/* ================= Email ================= */}
               <div className="mb-4">
-                <label className="mb-1.5 block text-[11px] font-medium text-[#222222]">
+                <label className="mb-1.5 block text-xs font-semibold text-secondary">
                   Your Email
                 </label>
 
@@ -175,13 +174,13 @@ const Rider = () => {
                   type="email"
                   value={user?.email || ''}
                   readOnly
-                  className="h-[38px] w-full cursor-not-allowed rounded-[5px] border border-[#d6dde2] bg-gray-100 px-3 text-[12px] text-[#666666] outline-none"
+                  className="h-10 w-full cursor-not-allowed rounded-xl border border-gray-200 bg-gray-100 px-3.5 text-xs text-gray-500 outline-none"
                 />
               </div>
 
               {/* ================= Region ================= */}
               <div className="mb-4">
-                <label className="mb-1.5 block text-[11px] font-medium text-[#222222]">
+                <label className="mb-1.5 block text-xs font-semibold text-secondary">
                   Your Region
                 </label>
 
@@ -190,7 +189,7 @@ const Rider = () => {
                     required: 'Please select your region',
                   })}
                   defaultValue=""
-                  className="h-[38px] w-full rounded-[5px] border border-[#d6dde2] bg-white px-3 text-[12px] text-gray-500 outline-none focus:border-[#9acb28]"
+                  className="h-10 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-xs text-secondary outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                 >
                   <option value="" disabled>
                     Select your Region
@@ -204,7 +203,7 @@ const Rider = () => {
                 </select>
 
                 {errors.region && (
-                  <p className="mt-1 text-[10px] text-red-500">
+                  <p className="mt-1 text-[11px] text-red-500">
                     {errors.region.message}
                   </p>
                 )}
@@ -212,7 +211,7 @@ const Rider = () => {
 
               {/* ================= District ================= */}
               <div className="mb-4">
-                <label className="mb-1.5 block text-[11px] font-medium text-[#222222]">
+                <label className="mb-1.5 block text-xs font-semibold text-secondary">
                   Your District
                 </label>
 
@@ -222,7 +221,7 @@ const Rider = () => {
                   })}
                   disabled={!region}
                   defaultValue=""
-                  className="h-[38px] w-full rounded-[5px] border border-[#d6dde2] bg-white px-3 text-[12px] text-gray-500 outline-none focus:border-[#9acb28] disabled:cursor-not-allowed disabled:bg-gray-100"
+                  className="h-10 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-xs text-secondary outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:bg-gray-100"
                 >
                   <option value="" disabled>
                     {region ? 'Select your District' : 'Select Region First'}
@@ -236,7 +235,7 @@ const Rider = () => {
                 </select>
 
                 {errors.district && (
-                  <p className="mt-1 text-[10px] text-red-500">
+                  <p className="mt-1 text-[11px] text-red-500">
                     {errors.district.message}
                   </p>
                 )}
@@ -244,7 +243,7 @@ const Rider = () => {
 
               {/* ================= NID ================= */}
               <div className="mb-4">
-                <label className="mb-1.5 block text-[11px] font-medium text-[#222222]">
+                <label className="mb-1.5 block text-xs font-semibold text-secondary">
                   NID No
                 </label>
 
@@ -254,11 +253,11 @@ const Rider = () => {
                   {...register('nid', {
                     required: 'NID is required',
                   })}
-                  className="h-[38px] w-full rounded-[5px] border border-[#d6dde2] bg-white px-3 text-[12px] text-[#333333] outline-none placeholder:text-[#a9b8c7] focus:border-[#9acb28]"
+                  className="h-10 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-xs text-secondary outline-none transition placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
 
                 {errors.nid && (
-                  <p className="mt-1 text-[10px] text-red-500">
+                  <p className="mt-1 text-[11px] text-red-500">
                     {errors.nid.message}
                   </p>
                 )}
@@ -266,7 +265,7 @@ const Rider = () => {
 
               {/* ================= Phone ================= */}
               <div className="mb-4">
-                <label className="mb-1.5 block text-[11px] font-medium text-[#222222]">
+                <label className="mb-1.5 block text-xs font-semibold text-secondary">
                   Phone Number
                 </label>
 
@@ -276,11 +275,11 @@ const Rider = () => {
                   {...register('phone', {
                     required: 'Phone number is required',
                   })}
-                  className="h-[38px] w-full rounded-[5px] border border-[#d6dde2] bg-white px-3 text-[12px] text-[#333333] outline-none placeholder:text-[#a9b8c7] focus:border-[#9acb28]"
+                  className="h-10 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-xs text-secondary outline-none transition placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
 
                 {errors.phone && (
-                  <p className="mt-1 text-[10px] text-red-500">
+                  <p className="mt-1 text-[11px] text-red-500">
                     {errors.phone.message}
                   </p>
                 )}
@@ -288,7 +287,7 @@ const Rider = () => {
 
               {/* ================= Bike Brand Model Year ================= */}
               <div className="mb-4">
-                <label className="mb-1.5 block text-[11px] font-medium text-[#222222]">
+                <label className="mb-1.5 block text-xs font-semibold text-secondary">
                   Bike Brand Model and Year
                 </label>
 
@@ -298,11 +297,11 @@ const Rider = () => {
                   {...register('bikeModel', {
                     required: 'Bike brand, model and year is required',
                   })}
-                  className="h-[38px] w-full rounded-[5px] border border-[#d6dde2] bg-white px-3 text-[12px] text-[#333333] outline-none placeholder:text-[#a9b8c7] focus:border-[#9acb28]"
+                  className="h-10 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-xs text-secondary outline-none transition placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
 
                 {errors.bikeModel && (
-                  <p className="mt-1 text-[10px] text-red-500">
+                  <p className="mt-1 text-[11px] text-red-500">
                     {errors.bikeModel.message}
                   </p>
                 )}
@@ -310,7 +309,7 @@ const Rider = () => {
 
               {/* ================= Bike Registration ================= */}
               <div className="mb-4">
-                <label className="mb-1.5 block text-[11px] font-medium text-[#222222]">
+                <label className="mb-1.5 block text-xs font-semibold text-secondary">
                   Bike Registration Number
                 </label>
 
@@ -320,11 +319,11 @@ const Rider = () => {
                   {...register('bikeRegistration', {
                     required: 'Bike registration number is required',
                   })}
-                  className="h-[38px] w-full rounded-[5px] border border-[#d6dde2] bg-white px-3 text-[12px] text-[#333333] outline-none placeholder:text-[#a9b8c7] focus:border-[#9acb28]"
+                  className="h-10 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-xs text-secondary outline-none transition placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
 
                 {errors.bikeRegistration && (
-                  <p className="mt-1 text-[10px] text-red-500">
+                  <p className="mt-1 text-[11px] text-red-500">
                     {errors.bikeRegistration.message}
                   </p>
                 )}
@@ -332,7 +331,7 @@ const Rider = () => {
 
               {/* ================= About Yourself ================= */}
               <div className="mb-4">
-                <label className="mb-1.5 block text-[11px] font-medium text-[#222222]">
+                <label className="mb-1.5 block text-xs font-semibold text-secondary">
                   Tell Us About Yourself
                 </label>
 
@@ -342,11 +341,11 @@ const Rider = () => {
                   {...register('about', {
                     required: 'Please tell us about yourself',
                   })}
-                  className="h-[38px] w-full rounded-[5px] border border-[#d6dde2] bg-white px-3 text-[12px] text-[#333333] outline-none placeholder:text-[#a9b8c7] focus:border-[#9acb28]"
+                  className="h-10 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-xs text-secondary outline-none transition placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
 
                 {errors.about && (
-                  <p className="mt-1 text-[10px] text-red-500">
+                  <p className="mt-1 text-[11px] text-red-500">
                     {errors.about.message}
                   </p>
                 )}
@@ -356,9 +355,12 @@ const Rider = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="mt-1 h-[38px] w-full rounded-[5px] bg-[#c6ef52] text-[12px] font-medium text-black transition hover:bg-[#b9e83e] disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-bold text-secondary shadow-sm transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {isSubmitting ? 'Submitting...' : 'Submit'}
+                <span>{isSubmitting ? 'Submitting...' : 'Submit Application'}</span>
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1e232a] text-xs font-bold text-primary">
+                  ↗
+                </span>
               </button>
             </div>
 
@@ -372,7 +374,6 @@ const Rider = () => {
             </div>
           </div>
         </form>
-      </div>
     </div>
   );
 };

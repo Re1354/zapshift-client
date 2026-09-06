@@ -36,18 +36,16 @@ const FAQ = () => {
   };
 
   return (
-    <section className="py-12 md:py-10">
-      <div className="mx-auto max-w-[1120px] px-5 md:px-8">
+    <section className="w-full py-8 sm:py-10">
+      <div className="w-full">
         {/* Heading */}
         <div className="mx-auto mb-8 max-w-2xl text-center">
-          <h2 className="text-3xl font-bold text-secondary md:text-4xl">
+          <h2 className="text-3xl font-extrabold text-secondary tracking-tight sm:text-4xl">
             Frequently Asked Question (FAQ)
           </h2>
 
           <p className="mt-3 text-sm leading-6 text-gray-500">
-            Enhance posture, mobility, and well-being effortlessly with Posture
-            Pro. Achieve proper alignment, reduce pain, and strengthen your body
-            with ease!
+            Enhance your delivery experience with ZapShift. Fast, reliable, and secure parcel service across the nation.
           </p>
         </div>
 
@@ -107,49 +105,16 @@ const FAQ = () => {
         </div>
 
         {/* CTA */}
-        <div className="mt-8 flex items-center justify-center">
-          <div className="flex items-center">
-            <button
-              type="button"
-              className="
-                rounded-xl
-                bg-primary
-                px-6
-                py-3
-                text-sm
-                font-bold
-                text-secondary
-                transition
-                duration-300
-                hover:scale-105
-              "
-            >
-              See More FAQ's
-            </button>
-
-            <button
-              type="button"
-              aria-label="See more FAQs"
-              className="
-                -ml-.5
-                flex
-                h-11
-                w-11
-                items-center
-                justify-center
-                rounded-full
-                bg-[#202020]
-                text-xl
-                font-bold
-                text-primary
-                transition
-                duration-300
-                hover:scale-105
-              "
-            >
+        <div className="mt-10 flex items-center justify-center">
+          <button
+            type="button"
+            className="group inline-flex items-center justify-center gap-3 rounded-full bg-primary pl-6 pr-2 py-2 text-sm font-bold text-secondary transition-all duration-200 hover:bg-primary-hover active:scale-95 shadow-sm"
+          >
+            <span>See More FAQ's</span>
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-base font-bold text-primary transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
               ↗
-            </button>
-          </div>
+            </span>
+          </button>
         </div>
       </div>
     </section>

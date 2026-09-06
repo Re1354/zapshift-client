@@ -22,23 +22,21 @@ const Reviews = ({ reviewPromise }) => {
   const reviews = use(reviewPromise);
 
   return (
-    <section className="overflow-hidden bg-[#eef0f1] py-16 md:py-20">
+    <section className="w-full overflow-hidden py-8 sm:py-12">
       {/* Heading */}
-      <div className="mx-auto mb-10 max-w-2xl px-5 md:px-8 text-center">
+      <div className="mx-auto mb-10 max-w-2xl px-4 text-center">
         <img
           className="mx-auto mb-5 h-24 w-48 object-contain"
           src={customerTop}
           alt=""
         />
 
-        <h2 className="text-3xl font-bold text-secondary md:text-4xl">
+        <h2 className="text-3xl font-extrabold text-secondary tracking-tight sm:text-4xl">
           What our customers are saying
         </h2>
 
         <p className="mt-3 text-sm leading-6 text-gray-500">
-          Enhance posture, mobility, and well-being effortlessly with Posture
-          Pro. Achieve proper alignment, reduce pain, and strengthen your body
-          with ease!
+          Hear from real customers and merchants who rely on ZapShift for fast, safe, and dependable delivery every day.
         </p>
       </div>
 

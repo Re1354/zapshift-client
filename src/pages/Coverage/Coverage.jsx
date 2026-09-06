@@ -10,6 +10,7 @@ const Coverage = () => {
   const serviceCenters = useLoaderData();
 
   const mapRef = useRef(null);
+
   const [searchText, setSearchText] = useState('');
   const [searchMessage, setSearchMessage] = useState('');
 
@@ -56,22 +57,26 @@ const Coverage = () => {
   };
 
   return (
-    <section className="bg-[#eef0f1] py-10 md:py-14">
-      <div className="mx-auto max-w-6xl px-5 md:px-8">
-        {/* Main Coverage Card */}
-        <div className="rounded-[28px] bg-white/40 px-6 py-8 md:px-10 md:py-10">
-          {/* Heading */}
-          <div>
-            <h2 className="text-3xl font-bold leading-tight text-secondary md:text-4xl">
-              We are available in 64 districts
-            </h2>
-          </div>
+    <div className="w-full rounded-3xl bg-white p-6 sm:p-10 lg:p-14 shadow-sm">
+      {/* Heading */}
+      <div>
+        <h1 className="text-3xl font-extrabold tracking-tight text-secondary sm:text-4xl md:text-5xl">
+          We are available in 64 districts
+        </h1>
 
-          {/* Search */}
-          <form
-            onSubmit={handleSearch}
-            className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center"
-          >
+        <p className="mt-3 max-w-[560px] text-xs leading-6 text-gray-500 sm:text-sm">
+          The fastest and most dependable courier service in the country
+        </p>
+      </div>
+
+      {/* Divider */}
+      <div className="my-6 sm:my-8 border-t border-gray-100" />
+
+      {/* Search */}
+      <form
+        onSubmit={handleSearch}
+        className="flex flex-col gap-3 sm:flex-row sm:items-center"
+      >
             <div className="flex h-11 w-full max-w-[320px] items-center rounded-full border border-secondary/20 bg-white px-4 shadow-sm">
               {/* Search Icon */}
               <svg
@@ -83,6 +88,7 @@ const Coverage = () => {
                 strokeWidth="2"
               >
                 <circle cx="11" cy="11" r="7" />
+
                 <path d="m20 20-4-4" />
               </svg>
 
@@ -130,7 +136,7 @@ const Coverage = () => {
           <div className="mt-4 overflow-hidden rounded-2xl border border-secondary/10 bg-white shadow-sm">
             <MapContainer
               center={mapCenter}
-              zoom={7}
+              zoom={8}
               minZoom={7}
               maxZoom={13}
               scrollWheelZoom={false}
@@ -138,7 +144,7 @@ const Coverage = () => {
               ref={mapRef}
               maxBounds={bangladeshBounds}
               maxBoundsViscosity={1}
-              className="h-[350px] w-full md:h-[430px] lg:h-[470px]"
+              className="h-[450px] w-full md:h-[520px] lg:h-[560px]"
             >
               <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -151,7 +157,16 @@ const Coverage = () => {
                 <Marker
                   key={`${center.region}-${center.district}`}
                   position={[Number(center.latitude), Number(center.longitude)]}
+                  eventHandlers={{
+                    mouseover: e => {
+                      e.target.openPopup();
+                    },
+                    mouseout: e => {
+                      e.target.closePopup();
+                    },
+                  }}
                 >
+                  {/* EXACT ORIGINAL POPUP DESIGN */}
                   <Popup>
                     <div className="min-w-[200px]">
                       {/* District */}
@@ -194,9 +209,7 @@ const Coverage = () => {
               ))}
             </MapContainer>
           </div>
-        </div>
-      </div>
-    </section>
+    </div>
   );
 };
 

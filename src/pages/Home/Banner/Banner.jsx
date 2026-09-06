@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 
@@ -7,6 +8,8 @@ import bannerImg2 from '../../../assets/banner/banner2.png';
 import bannerImg3 from '../../../assets/banner/banner3.png';
 
 const Banner = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="relative overflow-hidden rounded-3xl">
       {/* Image Slider */}
@@ -51,69 +54,65 @@ const Banner = () => {
       <div
         className="
           absolute
-          bottom-20
-          left-10
+          bottom-8
+          left-6
+          sm:bottom-12
+          sm:left-10
+          md:bottom-16
+          md:left-14
           z-20
           flex
+          flex-wrap
           items-center
-          gap-0
+          gap-4
         "
       >
         {/* Track Your Parcel */}
         <button
+          onClick={() => navigate('/parcel-track')}
+          type="button"
           className="
-            btn
-            btn-primary
-            h-12
-            min-h-12
+            flex
+            items-center
+            gap-3
             rounded-full
-            px-8
-            text-base
+            bg-primary
+            py-2
+            pl-6
+            pr-2
+            text-sm
+            sm:text-base
             font-bold
             text-secondary
-          "
-        >
-          Track Your Parcel
-        </button>
-
-        {/* Arrow Button */}
-        <button
-          aria-label="Track your parcel"
-          className="
-            -ml-1
-            flex
-            h-8
-            w-8
-            shrink-0
-            items-center
-            justify-center
-            rounded-full
-            bg-black
-            text-xl
-            text-primary
+            shadow-lg
             transition
-            duration-300
-            hover:scale-105
+            hover:brightness-95
           "
         >
-          ↗
+          <span>Track Your Parcel</span>
+          <span className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-[#1e232a] text-sm font-bold text-primary">
+            ↗
+          </span>
         </button>
 
         {/* Be A Rider */}
         <button
+          onClick={() => navigate('/rider')}
+          type="button"
           className="
-            ml-6
-            py-2
-            px-8
-            bg-white
-            px-2
-            text-base
-            border-1
-            border-zinc-300
-            rounded-xl
+            rounded-full
+            bg-white/95
+            px-6
+            py-3
+            text-sm
+            sm:text-base
             font-bold
             text-secondary
-            hover:bg-transparent
+            shadow-md
+            backdrop-blur-sm
+            transition
+            hover:bg-white
+            hover:shadow-lg
           "
         >
           Be A Rider

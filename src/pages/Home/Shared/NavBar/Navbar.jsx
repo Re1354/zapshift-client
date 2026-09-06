@@ -1,6 +1,5 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router';
-
 import Logo from '../../../../Components/Logo/Logo';
 import useAuth from '../../../../hooks/useAuth';
 import useRole from '../../../../hooks/useRole';
@@ -25,10 +24,10 @@ const Navbar = () => {
   };
 
   const navLinkClass = ({ isActive }) =>
-    `rounded-xl px-4 py-2 text-sm font-medium transition ${
+    `whitespace-nowrap rounded-full px-3 py-1.5 text-[13px] font-medium transition ${
       isActive
-        ? 'bg-primary text-secondary'
-        : 'text-secondary/70 hover:bg-primary/60 hover:text-secondary'
+        ? 'bg-primary text-secondary font-bold'
+        : 'text-secondary/75 hover:bg-primary/50 hover:text-secondary'
     }`;
 
   const links = (
@@ -36,12 +35,6 @@ const Navbar = () => {
       <li>
         <NavLink to="/" className={navLinkClass}>
           Home
-        </NavLink>
-      </li>
-
-      <li>
-        <NavLink to="/services" className={navLinkClass}>
-          Services
         </NavLink>
       </li>
 
@@ -64,18 +57,36 @@ const Navbar = () => {
       </li>
 
       <li>
+        <NavLink to="/parcel-track" className={navLinkClass}>
+          Track Order
+        </NavLink>
+      </li>
+
+      <li>
+        <NavLink to="/rider" className={navLinkClass}>
+          Be a Rider
+        </NavLink>
+      </li>
+
+      <li>
         <NavLink to="/send-parcel" className={navLinkClass}>
           Send Parcel
         </NavLink>
       </li>
+
       {user && (
         <>
+          {/* Dashboard */}
           <li>
-            <NavLink
-              to={role === 'admin' ? '/dashboard' : '/dashboard/my-parcels'}
-              className={navLinkClass}
-            >
-              {role === 'admin' ? 'Dashboard' : 'My Parcels'}
+            <NavLink to="/dashboard" className={navLinkClass}>
+              Dashboard
+            </NavLink>
+          </li>
+
+          {/* My Parcels */}
+          <li>
+            <NavLink to="/dashboard/my-parcels" className={navLinkClass}>
+              My Parcels
             </NavLink>
           </li>
         </>
@@ -84,46 +95,61 @@ const Navbar = () => {
   );
 
   return (
-    <header className="pt-3 mb-5">
-      <div className="navbar min-h-[64px] rounded-2xl bg-white px-4 shadow-sm md:px-5">
-        {/* ================= Logo ================= */}
-        <div className="navbar-start">
+    <header className="w-full">
+      <div
+        className="
+          flex
+          min-h-[64px]
+          w-full
+          items-center
+          justify-between
+          rounded-2xl
+          bg-white
+          px-4
+          py-2.5
+          shadow-sm
+          sm:px-6
+        "
+      >
+        {/* =====================================================
+            LOGO
+        ====================================================== */}
+        <div className="shrink-0">
           <NavLink to="/" className="flex items-center hover:bg-transparent">
             <Logo />
           </NavLink>
         </div>
 
-        {/* ================= Desktop Navigation ================= */}
-        <div className="navbar-center hidden lg:flex">
-          <ul className="menu menu-horizontal items-center gap-1 p-0">
-            {links}
-          </ul>
-        </div>
+        {/* =====================================================
+            DESKTOP NAVIGATION
+        ====================================================== */}
+        <nav className="mx-auto hidden items-center xl:flex">
+          <ul className="flex items-center gap-1">{links}</ul>
+        </nav>
 
-        {/* ================= Right Side ================= */}
-        <div className="navbar-end gap-2">
+        {/* =====================================================
+            RIGHT SIDE
+        ====================================================== */}
+        <div className="hidden shrink-0 items-center gap-3 xl:flex">
           {user ? (
             <>
-              {/* ================= Logged In ================= */}
-
               {/* Logout */}
               <button
                 onClick={handleLogOut}
                 type="button"
                 className="
-                  hidden
+                  whitespace-nowrap
                   rounded-xl
                   border
                   border-gray-200
-                  px-5
-                  py-2.5
+                  px-4
+                  py-2
                   text-sm
                   font-semibold
                   text-secondary
                   transition
                   hover:border-secondary/30
                   hover:bg-gray-50
-                  md:block
                 "
               >
                 Logout
@@ -134,214 +160,156 @@ const Navbar = () => {
                 onClick={handleRiderClick}
                 type="button"
                 className="
+                  flex
+                  items-center
+                  gap-2
+                  whitespace-nowrap
                   rounded-xl
                   bg-primary
-                  px-5
-                  py-2.5
+                  py-1.5
+                  pl-4
+                  pr-1.5
                   text-sm
                   font-bold
                   text-secondary
                   transition
-                  hover:scale-105
+                  hover:brightness-95
                 "
               >
-                Be a Rider
-              </button>
-
-              {/* Arrow */}
-              <button
-                onClick={handleRiderClick}
-                type="button"
-                className="
-                  hidden
-                  h-10
-                  w-10
-                  items-center
-                  justify-center
-                  rounded-full
-                  bg-[#202020]
-                  text-lg
-                  font-bold
-                  text-primary
-                  transition
-                  hover:scale-105
-                  md:flex
-                "
-                aria-label="Be a Rider"
-              >
-                ↗
+                <span>Be a Rider</span>
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#202020] text-xs font-bold text-primary">
+                  ↗
+                </span>
               </button>
             </>
           ) : (
             <>
-              {/* ================= Logged Out ================= */}
-
               {/* Login */}
               <NavLink
                 to="/login"
                 className="
-                  hidden
+                  whitespace-nowrap
                   rounded-xl
                   border
                   border-gray-200
-                  px-5
-                  py-2.5
+                  px-4
+                  py-2
                   text-sm
                   font-semibold
                   text-secondary
                   transition
                   hover:border-secondary/30
                   hover:bg-gray-50
-                  md:block
                 "
               >
-                Login
+                Sign In
               </NavLink>
 
               {/* Sign Up */}
               <NavLink
                 to="/register"
                 className="
-                  hidden
-                  rounded-xl
-                  bg-primary
-                  px-5
-                  py-2.5
-                  text-sm
-                  font-bold
-                  text-secondary
-                  transition
-                  hover:scale-105
-                  md:block
-                "
-              >
-                Sign Up
-              </NavLink>
-
-              {/* Be a Rider */}
-              <button
-                onClick={handleRiderClick}
-                type="button"
-                className="
-                  rounded-xl
-                  bg-primary
-                  px-5
-                  py-2.5
-                  text-sm
-                  font-bold
-                  text-secondary
-                  transition
-                  hover:scale-105
-                "
-              >
-                Be a Rider
-              </button>
-
-              {/* Arrow */}
-              <button
-                onClick={handleRiderClick}
-                type="button"
-                className="
-                  hidden
-                  h-10
-                  w-10
+                  flex
                   items-center
-                  justify-center
-                  rounded-full
-                  bg-[#202020]
-                  text-lg
+                  gap-2
+                  whitespace-nowrap
+                  rounded-xl
+                  bg-primary
+                  py-1.5
+                  pl-4
+                  pr-1.5
+                  text-sm
                   font-bold
-                  text-primary
+                  text-secondary
                   transition
-                  hover:scale-105
-                  md:flex
+                  hover:brightness-95
                 "
-                aria-label="Be a Rider"
               >
-                ↗
-              </button>
+                <span>Sign Up</span>
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#202020] text-xs font-bold text-primary">
+                  ↗
+                </span>
+              </NavLink>
             </>
           )}
+        </div>
 
-          {/* ================= Mobile Menu ================= */}
-          <div className="dropdown dropdown-end lg:hidden">
-            <button
-              tabIndex={0}
-              type="button"
-              className="btn btn-ghost btn-circle"
-              aria-label="Open menu"
+        {/* =====================================================
+            MOBILE MENU
+        ====================================================== */}
+        <div className="dropdown dropdown-end ml-auto xl:hidden">
+          <button
+            tabIndex={0}
+            type="button"
+            className="btn btn-ghost btn-circle"
+            aria-label="Open menu"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </button>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
 
-            <ul
-              tabIndex={0}
-              className="
-                menu
-                dropdown-content
-                z-50
-                mt-3
-                w-52
-                rounded-2xl
-                bg-white
-                p-3
-                shadow-lg
-              "
-            >
-              {links}
+          <ul
+            tabIndex={0}
+            className="
+              menu
+              dropdown-content
+              z-50
+              mt-3
+              w-56
+              rounded-2xl
+              bg-white
+              p-3
+              shadow-lg
+            "
+          >
+            {links}
 
-              {!user ? (
-                <>
-                  {/* Mobile Login */}
-                  <li>
-                    <NavLink to="/login">Login</NavLink>
-                  </li>
+            <div className="my-2 h-px bg-gray-100" />
 
-                  {/* Mobile Sign Up */}
-                  <li>
-                    <NavLink to="/register">Sign Up</NavLink>
-                  </li>
-                </>
-              ) : (
-                <>
-                  {/* Mobile Logout */}
-                  <li>
-                    <button
-                      onClick={handleLogOut}
-                      type="button"
-                      className="text-left"
-                    >
-                      Logout
-                    </button>
-                  </li>
-                </>
-              )}
+            {!user ? (
+              <>
+                <li>
+                  <NavLink to="/login">Login</NavLink>
+                </li>
 
-              {/* Mobile Be a Rider */}
+                <li>
+                  <NavLink to="/register">Sign Up</NavLink>
+                </li>
+              </>
+            ) : (
               <li>
                 <button
-                  onClick={handleRiderClick}
+                  onClick={handleLogOut}
                   type="button"
                   className="text-left"
                 >
-                  Be a Rider
+                  Logout
                 </button>
               </li>
-            </ul>
-          </div>
+            )}
+
+            <li>
+              <button
+                onClick={handleRiderClick}
+                type="button"
+                className="text-left"
+              >
+                Be a Rider
+              </button>
+            </li>
+          </ul>
         </div>
       </div>
     </header>

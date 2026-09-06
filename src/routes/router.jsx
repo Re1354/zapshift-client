@@ -22,6 +22,10 @@ import AdminRoute from './AdminRoute';
 import AssignRiders from '../pages/Dashboard/AssignRiders/AssignRiders';
 import AssignedDeliveries from '../pages/Dashboard/AssignedDeliveries/AssignedDeliveries';
 import RiderRoute from './RiderRoute';
+import CompletedDeliveries from '../pages/Dashboard/CompletedDeliveries/CompletedDeliveries';
+import ParcelTrack from '../pages/ParcelTrack/ParcelTrack';
+import DashboardHome from '../pages/Dashboard/DashboardHome/DashboardHome';
+import Profile from '../pages/Dashboard/Profile/Profile';
 
 export const router = createBrowserRouter([
   {
@@ -36,6 +40,14 @@ export const router = createBrowserRouter([
         path: 'coverage',
         Component: Coverage,
         loader: () => fetch('/serviceCenters.json').then(res => res.json()),
+      },
+      {
+        path: 'parcel-track',
+        Component: ParcelTrack,
+      },
+      {
+        path: 'parcel-track/:trackingId',
+        Component: ParcelTrack,
       },
       {
         path: 'about',
@@ -88,6 +100,10 @@ export const router = createBrowserRouter([
     ),
     children: [
       {
+        index: true,
+        Component: DashboardHome,
+      },
+      {
         path: 'my-parcels',
         Component: MyParcels,
       },
@@ -106,6 +122,10 @@ export const router = createBrowserRouter([
       {
         path: 'payment-history',
         Component: PaymentHistory,
+      },
+      {
+        path: 'profile',
+        Component: Profile,
       },
       {
         path: 'approve-riders',
@@ -136,6 +156,14 @@ export const router = createBrowserRouter([
         element: (
           <RiderRoute>
             <AssignedDeliveries></AssignedDeliveries>
+          </RiderRoute>
+        ),
+      },
+      {
+        path: 'completed-deliveries',
+        element: (
+          <RiderRoute>
+            <CompletedDeliveries></CompletedDeliveries>
           </RiderRoute>
         ),
       },

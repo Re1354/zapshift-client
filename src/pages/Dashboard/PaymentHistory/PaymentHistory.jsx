@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   LuCircleCheck,
@@ -17,6 +17,27 @@ const PaymentHistory = () => {
   const axiosSecure = useAxiosSecure();
 
   const [selectedPayment, setSelectedPayment] = useState(null);
+
+  // Close modal on Escape key and lock body scroll while modal is open
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setSelectedPayment(null);
+      }
+    };
+
+    if (selectedPayment) {
+      document.body.style.overflow = 'hidden';
+      window.addEventListener('keydown', handleKeyDown);
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedPayment]);
 
   console.log(user);
   const {
@@ -357,167 +378,172 @@ const PaymentHistory = () => {
           Payment Details Modal
       ===================================================== */}
 
+      {/* =====================================================
+          Payment Details Modal
+      ===================================================== */}
+
       {selectedPayment && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-3 sm:p-4 backdrop-blur-xs transition-opacity duration-200"
           onClick={() => setSelectedPayment(null)}
         >
           <div
-            className="w-full max-w-lg rounded-2xl bg-white shadow-xl"
+            className="flex max-h-[90dvh] w-full max-w-lg flex-col rounded-2xl sm:rounded-3xl bg-white shadow-2xl overflow-hidden transition-all"
             onClick={event => event.stopPropagation()}
           >
-            {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-gray-100 px-6 py-5">
+            {/* Modal Header (Pinned at top) */}
+            <div className="flex shrink-0 items-center justify-between border-b border-gray-100 px-5 py-3.5 sm:px-6 sm:py-4">
               <div>
-                <h3 className="text-lg font-bold text-secondary">
+                <h3 className="text-base sm:text-lg font-bold text-secondary">
                   Payment Details
                 </h3>
 
-                <p className="mt-1 text-xs text-gray-400">
+                <p className="text-[11px] sm:text-xs text-gray-400">
                   Payment and transaction information
                 </p>
               </div>
 
               <button
+                type="button"
                 onClick={() => setSelectedPayment(null)}
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-gray-400 transition hover:bg-gray-100 hover:text-secondary"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition hover:bg-gray-200 hover:text-secondary"
+                aria-label="Close modal"
               >
-                <LuX className="h-5 w-5" />
+                <LuX className="h-4 w-4" />
               </button>
             </div>
 
-            {/* Modal Body */}
-            <div className="space-y-5 p-6">
-              {/* Parcel */}
-              <div className="rounded-xl bg-gray-50 p-4">
+            {/* Modal Body (Scrollable with max-height constraint) */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+              {/* Parcel Summary Card */}
+              <div className="rounded-xl border border-gray-100 bg-gray-50/80 p-3.5 sm:p-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#f1f5e8]">
-                    <LuPackage className="h-5 w-5 text-primary" />
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/20 text-secondary">
+                    <LuPackage className="h-5 w-5" />
                   </div>
 
-                  <div className="min-w-0">
-                    <p className="text-xs text-gray-400">Parcel</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                      Parcel
+                    </p>
 
-                    <p className="truncate font-semibold text-secondary">
+                    <p className="truncate text-sm sm:text-base font-bold text-secondary">
                       {selectedPayment.parcelName || 'Unnamed Parcel'}
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Information */}
-              <div className="space-y-4">
+              {/* Amount & Status Grid */}
+              <div className="grid grid-cols-2 gap-3">
                 {/* Amount */}
-                <div className="flex items-start gap-3">
-                  <LuCreditCard className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
-
-                  <div>
-                    <p className="text-xs text-gray-400">Payment Amount</p>
-
-                    <p className="mt-1 text-sm font-bold text-secondary">
-                      {formatAmount(selectedPayment)}
-                    </p>
+                <div className="rounded-xl border border-gray-100 bg-white p-3 shadow-2xs">
+                  <div className="flex items-center gap-1.5 text-gray-400">
+                    <LuCreditCard className="h-3.5 w-3.5 shrink-0" />
+                    <span className="text-[11px] font-medium">Payment Amount</span>
                   </div>
+
+                  <p className="mt-1 text-base sm:text-lg font-extrabold text-secondary">
+                    {formatAmount(selectedPayment)}
+                  </p>
                 </div>
 
                 {/* Status */}
-                <div className="flex items-start gap-3">
-                  <LuCircleCheck className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
+                <div className="rounded-xl border border-gray-100 bg-white p-3 shadow-2xs">
+                  <div className="flex items-center gap-1.5 text-gray-400">
+                    <LuCircleCheck className="h-3.5 w-3.5 shrink-0" />
+                    <span className="text-[11px] font-medium">Payment Status</span>
+                  </div>
 
-                  <div>
-                    <p className="text-xs text-gray-400">Payment Status</p>
-
+                  <div className="mt-1">
                     <span
-                      className={`mt-1 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${
-                        getPaymentStatus(selectedPayment.paymentStatus)
-                          .className
+                      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                        getPaymentStatus(selectedPayment.paymentStatus).className
                       }`}
                     >
                       {getPaymentStatus(selectedPayment.paymentStatus).icon}
-
                       {getPaymentStatus(selectedPayment.paymentStatus).label}
                     </span>
                   </div>
                 </div>
+              </div>
 
+              {/* Detailed Specs Card */}
+              <div className="space-y-3 rounded-xl border border-gray-100 bg-white p-3.5 sm:p-4 text-xs sm:text-sm">
                 {/* Tracking */}
-                <div className="flex items-start gap-3">
-                  <LuHash className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
-
-                  <div>
-                    <p className="text-xs text-gray-400">Tracking Number</p>
-
-                    <p className="mt-1 break-all font-mono text-sm font-medium text-secondary">
-                      {selectedPayment.trackingId || '—'}
-                    </p>
+                <div className="flex items-start justify-between gap-2 border-b border-gray-50 pb-2.5">
+                  <div className="flex items-center gap-1.5 text-gray-400 shrink-0">
+                    <LuHash className="h-3.5 w-3.5" />
+                    <span>Tracking Number</span>
                   </div>
+
+                  <p className="text-right break-all font-mono font-bold text-secondary">
+                    {selectedPayment.trackingId || '—'}
+                  </p>
                 </div>
 
                 {/* Customer Email */}
-                <div className="flex items-start gap-3">
-                  <LuCreditCard className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
-
-                  <div className="min-w-0">
-                    <p className="text-xs text-gray-400">Customer Email</p>
-
-                    <p className="mt-1 break-all text-sm font-medium text-secondary">
-                      {selectedPayment.customerEmail || '—'}
-                    </p>
+                <div className="flex items-start justify-between gap-2 border-b border-gray-50 pb-2.5">
+                  <div className="flex items-center gap-1.5 text-gray-400 shrink-0">
+                    <LuCreditCard className="h-3.5 w-3.5" />
+                    <span>Customer Email</span>
                   </div>
+
+                  <p className="text-right break-all font-medium text-secondary">
+                    {selectedPayment.customerEmail || '—'}
+                  </p>
                 </div>
 
                 {/* Date */}
-                <div className="flex items-start gap-3">
-                  <LuClock3 className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
+                <div className="flex items-start justify-between gap-2 border-b border-gray-50 pb-2.5">
+                  <div className="flex items-center gap-1.5 text-gray-400 shrink-0">
+                    <LuClock3 className="h-3.5 w-3.5" />
+                    <span>Payment Date</span>
+                  </div>
 
-                  <div>
-                    <p className="text-xs text-gray-400">Payment Date</p>
-
-                    <p className="mt-1 text-sm font-medium text-secondary">
+                  <div className="text-right">
+                    <p className="font-semibold text-secondary">
                       {formatDate(selectedPayment.paidAt)}
                     </p>
 
-                    <p className="text-xs text-gray-400">
+                    <p className="text-[11px] text-gray-400">
                       {formatTime(selectedPayment.paidAt)}
                     </p>
                   </div>
                 </div>
 
-                {/* Transaction */}
-                <div className="flex items-start gap-3">
-                  <LuHash className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
-
-                  <div className="min-w-0">
-                    <p className="text-xs text-gray-400">
-                      Stripe Transaction ID
-                    </p>
-
-                    <p className="mt-1 break-all font-mono text-xs text-secondary">
-                      {selectedPayment.transactionId || '—'}
-                    </p>
+                {/* Stripe Transaction ID */}
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-2 border-b border-gray-50 pb-2.5">
+                  <div className="flex items-center gap-1.5 text-gray-400 shrink-0">
+                    <LuHash className="h-3.5 w-3.5" />
+                    <span>Stripe Transaction ID</span>
                   </div>
+
+                  <p className="break-all font-mono text-xs text-secondary sm:text-right bg-gray-50 p-1 rounded sm:bg-transparent sm:p-0">
+                    {selectedPayment.transactionId || '—'}
+                  </p>
                 </div>
 
                 {/* Parcel ID */}
-                <div className="flex items-start gap-3">
-                  <LuPackage className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
-
-                  <div className="min-w-0">
-                    <p className="text-xs text-gray-400">Parcel ID</p>
-
-                    <p className="mt-1 break-all font-mono text-xs text-secondary">
-                      {selectedPayment.parcelId?.toString() || '—'}
-                    </p>
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-2 pt-0.5">
+                  <div className="flex items-center gap-1.5 text-gray-400 shrink-0">
+                    <LuPackage className="h-3.5 w-3.5" />
+                    <span>Parcel ID</span>
                   </div>
+
+                  <p className="break-all font-mono text-xs text-secondary sm:text-right bg-gray-50 p-1 rounded sm:bg-transparent sm:p-0">
+                    {selectedPayment.parcelId?.toString() || '—'}
+                  </p>
                 </div>
               </div>
             </div>
 
-            {/* Modal Footer */}
-            <div className="border-t border-gray-100 px-6 py-4">
+            {/* Modal Footer (Pinned at bottom) */}
+            <div className="shrink-0 border-t border-gray-100 bg-white px-5 py-3 sm:px-6 sm:py-3.5">
               <button
+                type="button"
                 onClick={() => setSelectedPayment(null)}
-                className="w-full rounded-xl bg-primary py-3 text-sm font-bold text-secondary transition hover:brightness-95"
+                className="w-full rounded-xl bg-primary py-2.5 sm:py-3 text-sm font-bold text-secondary transition hover:brightness-95 active:scale-[0.99]"
               >
                 Close
               </button>

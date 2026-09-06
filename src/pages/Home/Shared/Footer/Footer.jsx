@@ -4,11 +4,11 @@ import WhiteLogo from '../../../../Components/WhiteLogo/WhiteLogo';
 
 const Footer = () => {
   return (
-    <footer className=" px-5 pb-8 pt-0 md:px-8">
+    <footer className="w-full">
       <div
         className="
           w-full
-          rounded-[24px]
+          rounded-3xl
           bg-[#0B0B0B]
           px-6
           py-10
@@ -35,15 +35,6 @@ const Footer = () => {
         {/* Navigation */}
         <nav className="mt-5">
           <ul className="flex flex-wrap items-center justify-center gap-x-7 gap-y-3">
-            <li>
-              <a
-                href="#services"
-                className="text-[11px] text-white/80 transition hover:text-primary"
-              >
-                Services
-              </a>
-            </li>
-
             <li>
               <a
                 href="#coverage"

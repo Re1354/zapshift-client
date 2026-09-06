@@ -25,10 +25,10 @@ const Works = () => {
   ];
 
   return (
-    <section className=" py-16">
-      <div className="mx-auto max-w-6xl px-5 md:px-8">
+    <section className="w-full py-6 sm:py-8">
+      <div className="w-full">
         {/* Section Title */}
-        <h2 className="mb-6 text-2xl font-bold text-secondary">How it Works</h2>
+        <h2 className="mb-6 text-2xl sm:text-3xl font-extrabold text-secondary tracking-tight">How it Works</h2>
 
         {/* Cards */}
         <div className=" grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

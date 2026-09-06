@@ -37,10 +37,9 @@ const Services = () => {
   ];
 
   return (
-    <section className="py-14">
-      <div className="mx-auto px-5 md:px-8">
-        {/* Main Services Box */}
-        <div className="rounded-[24px] bg-secondary px-5 py-12 md:px-10 lg:px-14">
+    <section className="w-full py-6 sm:py-8">
+      {/* Main Services Box */}
+      <div className="w-full rounded-3xl bg-secondary px-6 py-10 sm:px-10 md:px-12 lg:px-16">
           {/* Heading */}
           <div className="mx-auto mb-10 max-w-2xl text-center">
             <h2 className="text-3xl font-bold text-white md:text-4xl">
@@ -91,7 +90,6 @@ const Services = () => {
             ))}
           </div>
         </div>
-      </div>
     </section>
   );
 };

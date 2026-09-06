@@ -2,10 +2,9 @@ import React from 'react';
 
 const Merchant = () => {
   return (
-    <section className="py-10 md:py-8">
-      <div className="mx-auto max-w-[1120px] px-5 md:px-8">
-        {/* Main Banner */}
-        <div className="relative min-h-[238px] overflow-hidden rounded-2xl bg-secondary px-8 py-9 md:px-11 md:py-10">
+    <section className="w-full py-6 sm:py-8">
+      {/* Main Banner */}
+      <div className="relative min-h-[238px] w-full overflow-hidden rounded-3xl bg-secondary px-8 py-9 md:px-12 md:py-12">
           {/* Decorative wave */}
           <div className="pointer-events-none absolute -top-20 left-[15%] h-[150px] w-[55%] -rotate-6 opacity-40">
             <div className="absolute inset-0 rounded-[50%] border-t-[2px] border-primary/30" />
@@ -24,46 +23,24 @@ const Merchant = () => {
               is Our First Priority
             </h2>
 
-            <p className="mt-4 max-w-[520px] text-[10px] leading-[1.7] text-white/70 md:text-[11px]">
+            <p className="mt-4 max-w-[520px] text-xs leading-relaxed text-white/75 sm:text-sm">
               We offer the lowest delivery charge with the highest value along
-              with 100% safety of your product. Pathao courier delivers your
+              with 100% safety of your product. ZapShift delivers your
               parcels in every corner of Bangladesh right on time.
             </p>
 
             {/* Buttons */}
-            <div className="mt-5 flex items-center gap-2.5">
+            <div className="mt-6 flex flex-wrap items-center gap-3">
               <button
-                className="
-                  rounded-full
-                  bg-primary
-                  px-5
-                  py-2.5
-                  text-[11px]
-                  font-bold
-                  text-secondary
-                  transition
-                  duration-300
-                  hover:scale-105
-                "
+                type="button"
+                className="rounded-full bg-primary px-6 py-3 text-xs sm:text-sm font-bold text-secondary transition-all duration-200 hover:bg-primary-hover active:scale-95 shadow-sm"
               >
                 Become a Merchant
               </button>
 
               <button
-                className="
-                  rounded-full
-                  border
-                  border-primary
-                  px-5
-                  py-2.5
-                  text-[11px]
-                  font-bold
-                  text-primary
-                  transition
-                  duration-300
-                  hover:bg-primary
-                  hover:text-secondary
-                "
+                type="button"
+                className="rounded-full border border-primary/80 bg-transparent px-6 py-3 text-xs sm:text-sm font-bold text-primary transition-all duration-200 hover:bg-primary hover:text-secondary active:scale-95"
               >
                 Earn with ZapShift Courier
               </button>
@@ -170,7 +147,6 @@ const Merchant = () => {
             </div>
           </div>
         </div>
-      </div>
     </section>
   );
 };

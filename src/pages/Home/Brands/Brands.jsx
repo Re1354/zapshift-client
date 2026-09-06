@@ -41,10 +41,10 @@ const brandLogos = [
 
 const Brands = () => {
   return (
-    <section className=" py-12">
-      <div className="mx-auto max-w-[1120px] px-5 md:px-8">
+    <section className="w-full py-8 sm:py-10">
+      <div className="w-full">
         {/* Heading */}
-        <h2 className="text-center text-[24px] font-bold leading-tight text-secondary">
+        <h2 className="text-center text-2xl sm:text-3xl font-extrabold leading-tight text-secondary tracking-tight">
           We've helped thousands of sales teams
         </h2>
 
@@ -96,7 +96,7 @@ const Brands = () => {
         </div>
 
         {/* Dashed Divider */}
-        <div className="mt-14 border-b border-dashed border-secondary" />
+        <div className="mt-14 border-b border-dashed border-secondary/20" />
       </div>
     </section>
   );

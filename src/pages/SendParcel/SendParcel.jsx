@@ -10,6 +10,7 @@ const SendParcel = () => {
     register,
     handleSubmit,
     control,
+    watch,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -22,6 +23,7 @@ const SendParcel = () => {
     },
   });
 
+  const parcelType = watch('parcelType');
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const navigate = useNavigate();
@@ -162,57 +164,75 @@ const SendParcel = () => {
   };
 
   const inputClass =
-    'h-10 w-full rounded-md border border-[#d6dde2] bg-white px-2 text-[11px] text-black outline-none transition duration-200 placeholder:text-[#9aaabd] focus:border-[#b9df45] focus:ring-2 focus:ring-[#b9df45]/20';
+    'h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-xs text-secondary outline-none transition duration-200 placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20';
 
   return (
-    <div className="min-h-[calc(100vh-100px)] bg-[#eef0f1] px-4 py-5 md:px-8 md:py-8">
-      <div className="mx-auto max-w-7xl rounded-[24px] bg-white px-8 py-12 md:px-12 lg:px-16">
+    <div className="w-full rounded-3xl bg-white p-6 sm:p-10 lg:p-14 shadow-sm">
+      <div>
+        <h1 className="text-3xl font-extrabold tracking-tight text-secondary sm:text-4xl md:text-5xl">
+          Send A Parcel
+        </h1>
+
+        <p className="mt-3 max-w-[560px] text-xs leading-6 text-gray-500 sm:text-sm">
+          Enjoy fast, reliable parcel delivery with real-time tracking and
+          zero hassle. From personal packages to business shipments — we
+          deliver on time, every time.
+        </p>
+      </div>
+
+      <div className="my-6 sm:my-8 border-t border-gray-100" />
+
+      <form onSubmit={handleSubmit(handleSendParcel)}>
+        {/* ── Parcel Details ── */}
         <div>
-          <h2 className="text-4xl font-bold tracking-tight text-[#004b50] md:text-5xl">
-            Send A Parcel
-          </h2>
-        </div>
+          <h3 className="text-base sm:text-lg font-bold text-secondary">
+            Enter your parcel details
+          </h3>
 
-        <form onSubmit={handleSubmit(handleSendParcel)} className="mt-8">
-          {/* ── Parcel Details ── */}
-          <div>
-            <h3 className="text-lg font-bold text-[#004b50]">
-              Enter your parcel details
-            </h3>
-            <div className="mt-4 border-t border-gray-200" />
+          <div className="mt-4 flex items-center gap-3">
+            <label
+              className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold transition ${
+                parcelType === 'document'
+                  ? 'border-primary bg-primary/15 text-secondary'
+                  : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+              }`}
+            >
+              <input
+                type="radio"
+                value="document"
+                {...register('parcelType', { required: true })}
+                className="radio radio-xs radio-success"
+              />
+              Document
+            </label>
+            <label
+              className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold transition ${
+                parcelType === 'non-document'
+                  ? 'border-primary bg-primary/15 text-secondary'
+                  : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+              }`}
+            >
+              <input
+                type="radio"
+                value="non-document"
+                {...register('parcelType', { required: true })}
+                className="radio radio-xs radio-success"
+              />
+              Non-Document
+            </label>
+          </div>
 
-            <div className="mt-4 flex items-center gap-8">
-              <label className="flex cursor-pointer items-center gap-2 text-[11px] font-medium text-black">
-                <input
-                  type="radio"
-                  value="document"
-                  {...register('parcelType', { required: true })}
-                  className="radio radio-success h-4 w-4"
-                />
-                Document
-              </label>
-              <label className="flex cursor-pointer items-center gap-2 text-[11px] font-medium text-black">
-                <input
-                  type="radio"
-                  value="non-document"
-                  {...register('parcelType', { required: true })}
-                  className="radio radio-success h-4 w-4"
-                />
-                Non-Document
-              </label>
-            </div>
-
-            {errors.parcelType && (
-              <p className="mt-1 text-xs text-red-500">
-                Please select parcel type.
-              </p>
-            )}
+          {errors.parcelType && (
+            <p className="mt-1.5 text-xs font-medium text-red-500">
+              Please select parcel type.
+            </p>
+          )}
 
             <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <label
                   htmlFor="parcelName"
-                  className="mb-1 block text-[11px] font-semibold text-black"
+                  className="mb-1.5 block text-xs font-semibold text-secondary"
                 >
                   Parcel Name
                 </label>
@@ -224,7 +244,7 @@ const SendParcel = () => {
                   className={inputClass}
                 />
                 {errors.parcelName && (
-                  <p className="mt-1 text-[10px] text-red-500">
+                  <p className="mt-1 text-[11px] font-medium text-red-500">
                     Parcel name is required.
                   </p>
                 )}
@@ -233,7 +253,7 @@ const SendParcel = () => {
               <div>
                 <label
                   htmlFor="parcelWeight"
-                  className="mb-1 block text-[11px] font-semibold text-black"
+                  className="mb-1.5 block text-xs font-semibold text-secondary"
                 >
                   Parcel Weight (KG)
                 </label>
@@ -250,7 +270,7 @@ const SendParcel = () => {
                   className={inputClass}
                 />
                 {errors.parcelWeight && (
-                  <p className="mt-1 text-[10px] text-red-500">
+                  <p className="mt-1 text-[11px] font-medium text-red-500">
                     Parcel weight is required.
                   </p>
                 )}
@@ -259,17 +279,17 @@ const SendParcel = () => {
           </div>
 
           {/* ── Sender & Receiver ── */}
-          <div className="mt-8 grid grid-cols-1 gap-7 border-t border-gray-200 pt-5 md:grid-cols-2">
+          <div className="mt-8 grid grid-cols-1 gap-8 border-t border-gray-100 pt-6 md:grid-cols-2">
             {/* Sender */}
             <div>
-              <h3 className="mb-5 text-xs font-bold text-[#004b50]">
+              <h3 className="mb-4 text-sm font-bold text-secondary">
                 Sender Details
               </h3>
 
-              <div className="mb-3">
+              <div className="mb-4">
                 <label
                   htmlFor="senderName"
-                  className="mb-1 block text-[11px] font-semibold text-black"
+                  className="mb-1.5 block text-xs font-semibold text-secondary"
                 >
                   Sender Name
                 </label>
@@ -281,17 +301,17 @@ const SendParcel = () => {
                   className={inputClass}
                 />
                 {errors.senderName && (
-                  <p className="mt-1 text-[10px] text-red-500">
+                  <p className="mt-1 text-[11px] font-medium text-red-500">
                     Sender name is required.
                   </p>
                 )}
               </div>
 
               {/* ✅ Sender Email — readonly + autoComplete off */}
-              <div className="mb-3">
+              <div className="mb-4">
                 <label
                   htmlFor="senderEmail"
-                  className="mb-1 block text-[11px] font-semibold text-black"
+                  className="mb-1.5 block text-xs font-semibold text-secondary"
                 >
                   Sender Email
                 </label>
@@ -303,15 +323,15 @@ const SendParcel = () => {
                   autoComplete="off"
                   className={`${inputClass} cursor-not-allowed bg-gray-50 text-gray-400`}
                 />
-                <p className="mt-1 text-[9px] text-gray-400">
+                <p className="mt-1 text-[10px] text-gray-400">
                   Automatically using your account email.
                 </p>
               </div>
 
-              <div className="mb-3">
+              <div className="mb-4">
                 <label
                   htmlFor="senderAddress"
-                  className="mb-1 block text-[11px] font-semibold text-black"
+                  className="mb-1.5 block text-xs font-semibold text-secondary"
                 >
                   Address
                 </label>
@@ -323,16 +343,16 @@ const SendParcel = () => {
                   className={inputClass}
                 />
                 {errors.senderAddress && (
-                  <p className="mt-1 text-[10px] text-red-500">
+                  <p className="mt-1 text-[11px] font-medium text-red-500">
                     Address is required.
                   </p>
                 )}
               </div>
 
-              <div className="mb-3">
+              <div className="mb-4">
                 <label
                   htmlFor="senderPhone"
-                  className="mb-1 block text-[11px] font-semibold text-black"
+                  className="mb-1.5 block text-xs font-semibold text-secondary"
                 >
                   Sender Phone No
                 </label>
@@ -344,23 +364,23 @@ const SendParcel = () => {
                   className={inputClass}
                 />
                 {errors.senderPhone && (
-                  <p className="mt-1 text-[10px] text-red-500">
+                  <p className="mt-1 text-[11px] font-medium text-red-500">
                     Sender phone number is required.
                   </p>
                 )}
               </div>
 
-              <div className="mb-3">
+              <div className="mb-4">
                 <label
                   htmlFor="senderRegion"
-                  className="mb-1 block text-[11px] font-semibold text-black"
+                  className="mb-1.5 block text-xs font-semibold text-secondary"
                 >
                   Your Region
                 </label>
                 <select
                   id="senderRegion"
                   {...register('senderRegion', { required: true })}
-                  className={`${inputClass} text-gray-500`}
+                  className={`${inputClass} text-secondary`}
                 >
                   <option value="" disabled>
                     Select your Region
@@ -372,16 +392,16 @@ const SendParcel = () => {
                   ))}
                 </select>
                 {errors.senderRegion && (
-                  <p className="mt-1 text-[10px] text-red-500">
+                  <p className="mt-1 text-[11px] font-medium text-red-500">
                     Please select your region.
                   </p>
                 )}
               </div>
 
-              <div className="mb-3">
+              <div className="mb-4">
                 <label
                   htmlFor="senderDistrict"
-                  className="mb-1 block text-[11px] font-semibold text-black"
+                  className="mb-1.5 block text-xs font-semibold text-secondary"
                 >
                   Your District
                 </label>
@@ -389,7 +409,7 @@ const SendParcel = () => {
                   id="senderDistrict"
                   {...register('senderDistrict', { required: true })}
                   disabled={!senderRegion}
-                  className={`${inputClass} text-gray-500 disabled:cursor-not-allowed disabled:bg-gray-100`}
+                  className={`${inputClass} text-secondary disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400`}
                 >
                   <option value="" disabled>
                     {senderRegion
@@ -403,7 +423,7 @@ const SendParcel = () => {
                   ))}
                 </select>
                 {errors.senderDistrict && (
-                  <p className="mt-1 text-[10px] text-red-500">
+                  <p className="mt-1 text-[11px] font-medium text-red-500">
                     Please select your district.
                   </p>
                 )}
@@ -412,7 +432,7 @@ const SendParcel = () => {
               <div>
                 <label
                   htmlFor="pickupInstruction"
-                  className="mb-1 block text-[11px] font-semibold text-black"
+                  className="mb-1.5 block text-xs font-semibold text-secondary"
                 >
                   Pickup Instruction
                 </label>
@@ -420,21 +440,21 @@ const SendParcel = () => {
                   id="pickupInstruction"
                   placeholder="Pickup Instruction"
                   {...register('pickupInstruction')}
-                  className="h-16 w-full resize-none rounded-md border border-[#d6dde2] bg-white px-2 py-2 text-[11px] text-black outline-none transition duration-200 placeholder:text-[#9aaabd] focus:border-[#b9df45] focus:ring-2 focus:ring-[#b9df45]/20"
+                  className="h-20 w-full resize-none rounded-xl border border-gray-200 bg-white p-3 text-xs text-secondary outline-none transition duration-200 placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
               </div>
             </div>
 
             {/* Receiver */}
             <div>
-              <h3 className="mb-5 text-xs font-bold text-[#004b50]">
+              <h3 className="mb-4 text-sm font-bold text-secondary">
                 Receiver Details
               </h3>
 
-              <div className="mb-3">
+              <div className="mb-4">
                 <label
                   htmlFor="receiverName"
-                  className="mb-1 block text-[11px] font-semibold text-black"
+                  className="mb-1.5 block text-xs font-semibold text-secondary"
                 >
                   Receiver Name
                 </label>
@@ -446,16 +466,16 @@ const SendParcel = () => {
                   className={inputClass}
                 />
                 {errors.receiverName && (
-                  <p className="mt-1 text-[10px] text-red-500">
+                  <p className="mt-1 text-[11px] font-medium text-red-500">
                     Receiver name is required.
                   </p>
                 )}
               </div>
 
-              <div className="mb-3">
+              <div className="mb-4">
                 <label
                   htmlFor="receiverEmail"
-                  className="mb-1 block text-[11px] font-semibold text-black"
+                  className="mb-1.5 block text-xs font-semibold text-secondary"
                 >
                   Receiver Email{' '}
                   <span className="ml-1 font-normal text-gray-400">
@@ -471,10 +491,10 @@ const SendParcel = () => {
                 />
               </div>
 
-              <div className="mb-3">
+              <div className="mb-4">
                 <label
                   htmlFor="receiverAddress"
-                  className="mb-1 block text-[11px] font-semibold text-black"
+                  className="mb-1.5 block text-xs font-semibold text-secondary"
                 >
                   Receiver Address
                 </label>
@@ -486,16 +506,16 @@ const SendParcel = () => {
                   className={inputClass}
                 />
                 {errors.receiverAddress && (
-                  <p className="mt-1 text-[10px] text-red-500">
+                  <p className="mt-1 text-[11px] font-medium text-red-500">
                     Receiver address is required.
                   </p>
                 )}
               </div>
 
-              <div className="mb-3">
+              <div className="mb-4">
                 <label
                   htmlFor="receiverPhone"
-                  className="mb-1 block text-[11px] font-semibold text-black"
+                  className="mb-1.5 block text-xs font-semibold text-secondary"
                 >
                   Receiver Contact No
                 </label>
@@ -507,23 +527,23 @@ const SendParcel = () => {
                   className={inputClass}
                 />
                 {errors.receiverPhone && (
-                  <p className="mt-1 text-[10px] text-red-500">
+                  <p className="mt-1 text-[11px] font-medium text-red-500">
                     Receiver contact number is required.
                   </p>
                 )}
               </div>
 
-              <div className="mb-3">
+              <div className="mb-4">
                 <label
                   htmlFor="receiverRegion"
-                  className="mb-1 block text-[11px] font-semibold text-black"
+                  className="mb-1.5 block text-xs font-semibold text-secondary"
                 >
                   Receiver Region
                 </label>
                 <select
                   id="receiverRegion"
                   {...register('receiverRegion', { required: true })}
-                  className={`${inputClass} text-gray-500`}
+                  className={`${inputClass} text-secondary`}
                 >
                   <option value="" disabled>
                     Select receiver Region
@@ -535,16 +555,16 @@ const SendParcel = () => {
                   ))}
                 </select>
                 {errors.receiverRegion && (
-                  <p className="mt-1 text-[10px] text-red-500">
+                  <p className="mt-1 text-[11px] font-medium text-red-500">
                     Please select receiver region.
                   </p>
                 )}
               </div>
 
-              <div className="mb-3">
+              <div className="mb-4">
                 <label
                   htmlFor="receiverDistrict"
-                  className="mb-1 block text-[11px] font-semibold text-black"
+                  className="mb-1.5 block text-xs font-semibold text-secondary"
                 >
                   Receiver District
                 </label>
@@ -552,7 +572,7 @@ const SendParcel = () => {
                   id="receiverDistrict"
                   {...register('receiverDistrict', { required: true })}
                   disabled={!receiverRegion}
-                  className={`${inputClass} text-gray-500 disabled:cursor-not-allowed disabled:bg-gray-100`}
+                  className={`${inputClass} text-secondary disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400`}
                 >
                   <option value="" disabled>
                     {receiverRegion
@@ -566,7 +586,7 @@ const SendParcel = () => {
                   ))}
                 </select>
                 {errors.receiverDistrict && (
-                  <p className="mt-1 text-[10px] text-red-500">
+                  <p className="mt-1 text-[11px] font-medium text-red-500">
                     Please select receiver district.
                   </p>
                 )}
@@ -575,7 +595,7 @@ const SendParcel = () => {
               <div>
                 <label
                   htmlFor="deliveryInstruction"
-                  className="mb-1 block text-[11px] font-semibold text-black"
+                  className="mb-1.5 block text-xs font-semibold text-secondary"
                 >
                   Delivery Instruction
                 </label>
@@ -583,24 +603,26 @@ const SendParcel = () => {
                   id="deliveryInstruction"
                   placeholder="Delivery Instruction"
                   {...register('deliveryInstruction')}
-                  className="h-16 w-full resize-none rounded-md border border-[#d6dde2] bg-white px-2 py-2 text-[11px] text-black outline-none transition duration-200 placeholder:text-[#9aaabd] focus:border-[#b9df45] focus:ring-2 focus:ring-[#b9df45]/20"
+                  className="h-20 w-full resize-none rounded-xl border border-gray-200 bg-white p-3 text-xs text-secondary outline-none transition duration-200 placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
               </div>
             </div>
           </div>
 
-          <p className="mt-7 text-[10px] font-medium text-black">
+          <p className="mt-6 text-xs font-medium text-gray-500">
             * PickUp Time 4pm-7pm Approx.
           </p>
 
           <button
             type="submit"
-            className="mt-7 h-9 w-[185px] rounded-md bg-primary text-[10px] font-medium text-secondary transition duration-200 hover:brightness-95"
+            className="group mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-7 py-3 text-xs sm:text-sm font-bold text-secondary transition-all duration-200 hover:bg-primary-hover active:scale-95 shadow-sm"
           >
-            Proceed to Confirm Booking
+            <span>Proceed to Confirm Booking</span>
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-secondary text-[11px] text-white transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+              ↗
+            </span>
           </button>
         </form>
-      </div>
     </div>
   );
 };

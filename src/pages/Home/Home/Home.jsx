@@ -12,7 +12,7 @@ const reviewPromise = fetch('/reviews.json').then(res => res.json());
 
 const Home = () => {
   return (
-    <div>
+    <div className="w-full flex flex-col gap-6 sm:gap-10">
       <Banner></Banner>
       <Works></Works>
       <Services></Services>

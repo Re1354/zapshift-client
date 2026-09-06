@@ -27,8 +27,8 @@ const features = [
 
 const Features = () => {
   return (
-    <section className=" py-6 md:p-6">
-      <div className="mx-auto max-w-[1120px] px-5 md:px-8">
+    <section className="w-full py-6 sm:py-8">
+      <div className="w-full">
         {/* Feature Cards */}
         <div className="space-y-4">
           {features.map((feature, index) => (
@@ -63,7 +63,7 @@ const Features = () => {
         </div>
 
         {/* Bottom Dashed Line */}
-        <div className="mt-14 border-t border-dashed border-secondary" />
+        <div className="mt-14 border-t border-dashed border-secondary/20" />
       </div>
     </section>
   );
