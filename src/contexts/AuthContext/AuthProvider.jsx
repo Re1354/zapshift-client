@@ -9,11 +9,17 @@ import {
   signInWithRedirect,
   signOut,
   updateProfile,
-  browserPopupRedirectResolver
+  setPersistence,
+  browserLocalPersistence,
 } from 'firebase/auth';
 
 import { AuthContext } from './AuthContext';
 import { auth } from '../../firebase/firebase.init';
+
+// Set Firebase auth persistence explicitly to browserLocalPersistence
+setPersistence(auth, browserLocalPersistence).catch(err => {
+  console.error('[AUTH] Failed to set auth persistence:', err);
+});
 
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({
@@ -22,7 +28,7 @@ googleProvider.setCustomParameters({
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // ✅ Fix 1: true not false
+  const [loading, setLoading] = useState(true);
 
   const registerUser = (email, password) => {
     setLoading(true);
@@ -34,11 +40,19 @@ const AuthProvider = ({ children }) => {
     return signInWithEmailAndPassword(auth, email, password);
   };
 
-  const signInGoogle = () => {
-    return signInWithPopup(auth, googleProvider, browserPopupRedirectResolver);
+  const signInGoogle = async () => {
+    setLoading(true);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      setUser(result.user);
+      return result;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const signInGoogleRedirect = () => {
+    setLoading(true);
     return signInWithRedirect(auth, googleProvider);
   };
 
@@ -53,6 +67,7 @@ const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const unSubscribe = onAuthStateChanged(auth, currentUser => {
+      console.log('[AUTH STATE CHANGED]', currentUser ? currentUser.email : 'No user');
       setUser(currentUser);
       setLoading(false);
     });

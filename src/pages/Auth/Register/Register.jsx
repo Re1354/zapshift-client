@@ -18,14 +18,23 @@ const Register = () => {
     formState: { errors },
   } = useForm();
 
-  const { registerUser, updateUserProfile } = useAuth();
+  const { user, loading, registerUser, updateUserProfile } = useAuth();
 
   const navigate = useNavigate();
   const location = useLocation();
   const axiosSecure = useAxiosSecure();
 
   // Keep the original destination
-  const from = location.state?.from?.pathname || '/';
+  const rawFrom = location.state?.from?.pathname;
+  const targetDestination =
+    rawFrom && rawFrom !== '/login' && rawFrom !== '/register' ? rawFrom : '/';
+
+  // Automatically redirect if user is already logged in
+  useEffect(() => {
+    if (!loading && user) {
+      navigate(targetDestination, { replace: true });
+    }
+  }, [user, loading, targetDestination, navigate]);
 
   // ================= Photo Preview =================
   const handlePhotoChange = e => {
@@ -92,7 +101,7 @@ const Register = () => {
       console.log('User profile updated successfully');
 
       // 5. Redirect to original destination
-      navigate(from, { replace: true });
+      navigate(targetDestination, { replace: true });
     } catch (error) {
       console.error('Registration error:', error);
 
@@ -123,6 +132,20 @@ const Register = () => {
       }
     }
   };
+
+  // Wait until Firebase restores auth state before rendering register form
+  if (loading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+      </div>
+    );
+  }
+
+  // If already authenticated, do not show register form
+  if (user) {
+    return null;
+  }
 
   return (
     <div className="w-full">

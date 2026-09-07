@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { useForm } from 'react-hook-form';
 import { NavLink, useLocation, useNavigate } from 'react-router';
@@ -13,13 +13,22 @@ const Login = () => {
     formState: { errors },
   } = useForm();
 
-  const { signInUser } = useAuth();
+  const { user, loading, signInUser } = useAuth();
 
   const navigate = useNavigate();
   const location = useLocation();
 
   // The page user originally wanted to visit
-  const from = location.state?.from?.pathname || '/';
+  const rawFrom = location.state?.from?.pathname;
+  const targetDestination = rawFrom && rawFrom !== '/login' ? rawFrom : '/';
+
+  // Automatically redirect if user is already logged in
+  useEffect(() => {
+    if (!loading && user) {
+      console.log('[AUTH] User authenticated, routing away from /login to:', targetDestination);
+      navigate(targetDestination, { replace: true });
+    }
+  }, [user, loading, targetDestination, navigate]);
 
   const handleLogin = data => {
     signInUser(data.email, data.password)
@@ -27,12 +36,26 @@ const Login = () => {
         console.log('Login successful:', result.user);
 
         // Go back to the page user originally wanted
-        navigate(from, { replace: true });
+        navigate(targetDestination, { replace: true });
       })
       .catch(error => {
         console.log('Login error:', error);
       });
   };
+
+  // Wait until Firebase restores auth state before rendering login form
+  if (loading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+      </div>
+    );
+  }
+
+  // If already authenticated, do not show login form
+  if (user) {
+    return null;
+  }
 
   return (
     <div className="w-full">

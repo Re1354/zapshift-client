@@ -1,143 +1,132 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-import { getRedirectResult, browserPopupRedirectResolver } from 'firebase/auth';
+import { getRedirectResult } from 'firebase/auth';
+import axios from 'axios';
 
 import { auth } from '../../../firebase/firebase.init';
 import useAuth from '../../../hooks/useAuth';
-import useAxiosSecure from '../../../hooks/useAxiosSecure';
 
 const GoogleLogin = () => {
   const { signInGoogle, signInGoogleRedirect } = useAuth();
-  const axiosSecure = useAxiosSecure();
-
   const navigate = useNavigate();
   const location = useLocation();
   const [isProcessing, setIsProcessing] = useState(false);
-  const buttonRef = useRef(null);
 
-  const from = location.state?.from?.pathname || '/';
+  const rawFrom = location.state?.from?.pathname;
+  const targetDestination = rawFrom && rawFrom !== '/login' ? rawFrom : '/';
 
-  // Helper function to process successful Google login
-  const processSuccessfulLogin = async (user, redirectPath) => {
+  // Helper function to sync user with backend and redirect
+  const processSuccessfulLogin = async (firebaseUser, redirectPath) => {
     try {
       setIsProcessing(true);
-      console.log('Google login successful:', user);
+      console.log('[AUTH] Processing Google login for:', firebaseUser.email);
 
-      const token = await user.getIdToken();
-      console.log('Firebase token received:', !!token);
+      const token = await firebaseUser.getIdToken();
+      console.log('[AUTH] Firebase ID token acquired.');
 
       const userInfo = {
-        email: user.email,
-        displayName: user.displayName,
-        photoURL: user.photoURL,
+        email: firebaseUser.email,
+        displayName: firebaseUser.displayName || '',
+        photoURL: firebaseUser.photoURL || '',
       };
 
-      const res = await axiosSecure.post('/users', userInfo, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      // Sync user to backend using direct axios request (no auto-logout interceptor)
+      try {
+        const res = await axios.post(
+          'https://zap-shift-server-bay-eight.vercel.app/users',
+          userInfo,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+        console.log('[AUTH] User record synced with backend:', res.data);
+      } catch (backendError) {
+        console.warn(
+          '[AUTH] Backend user sync warning (non-fatal):',
+          backendError.response?.data || backendError.message,
+        );
+      }
 
-      console.log('User data has been stored:', res.data);
+      console.log('[AUTH] Navigating to:', redirectPath);
       navigate(redirectPath, { replace: true });
     } catch (error) {
-      console.error('Error processing login backend:', error);
-      alert('Login succeeded, but failed to connect to backend server.');
+      console.error('[AUTH] Login processing error:', error);
+      navigate(redirectPath, { replace: true });
     } finally {
       setIsProcessing(false);
     }
   };
 
-  // Check for redirect result on component mount
+  // Check for redirect result on component mount (if coming back from a full-page redirect)
   useEffect(() => {
-    let mounted = true;
-    
-    const checkRedirect = async () => {
-      try {
-        setIsProcessing(true);
-        // Using browserPopupRedirectResolver ensures it resolves correctly even with third-party cookie restrictions
-        const result = await getRedirectResult(auth, browserPopupRedirectResolver);
-        
-        if (result && mounted) {
-          const savedPath = sessionStorage.getItem('googleLoginRedirect') || '/';
+    let isMounted = true;
+
+    getRedirectResult(auth)
+      .then(async result => {
+        if (result?.user && isMounted) {
+          const savedPath =
+            sessionStorage.getItem('googleLoginRedirect') || targetDestination;
           sessionStorage.removeItem('googleLoginRedirect');
           await processSuccessfulLogin(result.user, savedPath);
-        } else if (mounted) {
-          setIsProcessing(false);
         }
-      } catch (error) {
-        if (mounted) {
-          setIsProcessing(false);
-          console.error('Redirect result error:', error);
+      })
+      .catch(error => {
+        if (isMounted) {
+          console.error('[AUTH] Redirect result error:', error);
           if (error.code === 'auth/unauthorized-domain') {
-            alert('Configuration Error: This domain is not authorized for OAuth operations. Please add exactly this domain (without https://) to Firebase Authorized Domains.');
-          } else {
-            alert('Google Login redirect failed. Please try again or use Email/Password.');
+            alert(
+              'Configuration Error: This domain is not authorized for OAuth in Firebase Console.',
+            );
           }
         }
-      }
-    };
+      });
 
-    checkRedirect();
-    
     return () => {
-      mounted = false;
+      isMounted = false;
     };
   }, []);
 
-  const handleSignIn = useCallback(
-    (e) => {
-      if (e) e.preventDefault();
-      setIsProcessing(true);
+  const handleGoogleClick = async e => {
+    e.preventDefault();
+    if (isProcessing) return;
 
-      // Attempt primary method: Popup
-      signInGoogle()
-        .then((result) => {
-          return processSuccessfulLogin(result.user, from);
-        })
-        .catch((error) => {
-          console.log('Popup login failed, analyzing error:', error.code);
-          
-          if (
-            error.code === 'auth/popup-blocked' ||
-            error.code === 'auth/cancelled-popup-request' ||
-            error.code === 'auth/popup-closed-by-user'
-          ) {
-            console.log('Popup blocked or closed, falling back to redirect...');
-            // Save the intended destination before redirecting
-            sessionStorage.setItem('googleLoginRedirect', from);
-            
-            // Execute the fallback: Redirect
-            signInGoogleRedirect().catch(redirectErr => {
-              setIsProcessing(false);
-              console.error('Redirect fallback failed immediately:', redirectErr);
-            });
-          } else if (error.code === 'auth/unauthorized-domain') {
-            setIsProcessing(false);
-            alert('Configuration Error: This domain is not authorized in Firebase Console. Please add exactly this domain (no https://) to Firebase Authorized Domains.');
-          } else {
-            setIsProcessing(false);
-            console.error('Unhandled Google login error:', error);
-            alert(`Login failed: ${error.message}`);
-          }
-        });
-    },
-    [signInGoogle, signInGoogleRedirect, from]
-  );
+    setIsProcessing(true);
 
-  // Attach native event listener
-  useEffect(() => {
-    const btn = buttonRef.current;
-    if (btn) {
-      btn.addEventListener('click', handleSignIn);
-      return () => btn.removeEventListener('click', handleSignIn);
+    try {
+      console.log('[AUTH] Starting Google signInWithPopup...');
+      const result = await signInGoogle();
+      console.log('[AUTH] Google popup succeeded for:', result.user.email);
+      await processSuccessfulLogin(result.user, targetDestination);
+    } catch (error) {
+      console.error('[AUTH] Google Sign-In error:', error.code, error.message);
+      setIsProcessing(false);
+
+      if (error.code === 'auth/popup-blocked') {
+        console.log('[AUTH] Popup blocked, falling back to redirect...');
+        sessionStorage.setItem('googleLoginRedirect', targetDestination);
+        try {
+          await signInGoogleRedirect();
+        } catch (redirectErr) {
+          console.error('[AUTH] Redirect fallback failed:', redirectErr);
+        }
+      } else if (error.code === 'auth/popup-closed-by-user') {
+        console.log('[AUTH] User closed Google popup.');
+      } else if (error.code === 'auth/unauthorized-domain') {
+        alert(
+          'Configuration Error: This domain is not authorized in Firebase Console. Please add zapshift-client.vercel.app to Firebase Authorized Domains.',
+        );
+      } else {
+        alert(`Google Sign-In failed: ${error.message}`);
+      }
     }
-  }, [handleSignIn]);
+  };
 
   return (
     <div>
       <button
-        ref={buttonRef}
+        onClick={handleGoogleClick}
         type="button"
         disabled={isProcessing}
         className="btn w-full border-[#e5e5e5] bg-white text-black relative"
