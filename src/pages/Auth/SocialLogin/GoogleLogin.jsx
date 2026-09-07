@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-import { getRedirectResult } from 'firebase/auth';
-import { auth } from '../../../firebase/firebase.init';
 
 import useAuth from '../../../hooks/useAuth';
 import useAxiosSecure from '../../../hooks/useAxiosSecure';
@@ -16,47 +14,43 @@ const GoogleLogin = () => {
 
   const from = location.state?.from?.pathname || '/';
 
-  useEffect(() => {
-    const handleRedirectResult = async () => {
-      try {
-        setIsProcessing(true);
-        const result = await getRedirectResult(auth);
-        
-        if (result) {
-          console.log('Google login successful via redirect:', result.user);
-          const token = await result.user.getIdToken();
-          
-          const userInfo = {
-            email: result.user.email,
-            displayName: result.user.displayName,
-            photoURL: result.user.photoURL,
-          };
-
-          const res = await axiosSecure.post('/users', userInfo, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-
-          console.log('User data has been stored:', res.data);
-          navigate(from, { replace: true });
-        }
-      } catch (error) {
-        console.error('Google login redirect error:', error);
-      } finally {
-        setIsProcessing(false);
-      }
-    };
-
-    handleRedirectResult();
-  }, [axiosSecure, from, navigate]);
-
   const handleSignIn = async () => {
     try {
       setIsProcessing(true);
-      await signInGoogle();
+      const result = await signInGoogle();
+
+      console.log('Google login successful:', result.user);
+
+      // Get Firebase ID token
+      const token = await result.user.getIdToken();
+
+      console.log('Firebase token received:', !!token);
+
+      const userInfo = {
+        email: result.user.email,
+        displayName: result.user.displayName,
+        photoURL: result.user.photoURL,
+      };
+
+      // Send token directly with this request
+      const res = await axiosSecure.post('/users', userInfo, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      console.log('User data has been stored:', res.data);
+
+      navigate(from, { replace: true });
     } catch (error) {
-      console.log('Google login initiation error:', error);
+      console.log('Google login error:', error);
+      console.log('Backend response:', error?.response?.data);
+      
+      // If the error is popup-blocked, we can show an alert or just let the console log it
+      if (error.code === 'auth/popup-blocked') {
+        alert('Your browser blocked the Google Login popup. Please allow popups for this site, or check if the domain is added to Firebase Authorized Domains.');
+      }
+    } finally {
       setIsProcessing(false);
     }
   };
@@ -100,7 +94,7 @@ const GoogleLogin = () => {
             </g>
           </svg>
         )}
-        {isProcessing ? 'Redirecting...' : 'Login with Google'}
+        {isProcessing ? 'Logging in...' : 'Login with Google'}
       </button>
     </div>
   );

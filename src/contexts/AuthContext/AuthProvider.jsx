@@ -5,7 +5,7 @@ import {
   GoogleAuthProvider,
   onAuthStateChanged,
   signInWithEmailAndPassword,
-  signInWithRedirect,
+  signInWithPopup,
   signOut,
   updateProfile,
 } from 'firebase/auth';
@@ -30,7 +30,7 @@ const AuthProvider = ({ children }) => {
   };
 
   const signInGoogle = () => {
-    return signInWithRedirect(auth, googleProvider);
+    return signInWithPopup(auth, googleProvider);
   };
 
   const logOut = () => {
