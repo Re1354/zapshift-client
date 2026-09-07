@@ -32,7 +32,16 @@ const Register = () => {
   // Automatically redirect if user is already logged in
   useEffect(() => {
     if (!loading && user) {
-      navigate(targetDestination, { replace: true });
+      const savedRedirect = sessionStorage.getItem('googleLoginRedirect');
+      if (savedRedirect) {
+        sessionStorage.removeItem('googleLoginRedirect');
+      }
+      const dest =
+        savedRedirect && savedRedirect !== '/login' && savedRedirect !== '/register'
+          ? savedRedirect
+          : targetDestination;
+      console.log('[AUTH] User authenticated, routing away from /register to:', dest);
+      navigate(dest, { replace: true });
     }
   }, [user, loading, targetDestination, navigate]);
 

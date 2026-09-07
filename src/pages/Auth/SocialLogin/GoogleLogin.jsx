@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-import { getRedirectResult } from 'firebase/auth';
 import axios from 'axios';
 
-import { auth } from '../../../firebase/firebase.init';
 import useAuth from '../../../hooks/useAuth';
 
 const GoogleLogin = () => {
@@ -15,7 +13,7 @@ const GoogleLogin = () => {
   const rawFrom = location.state?.from?.pathname;
   const targetDestination = rawFrom && rawFrom !== '/login' ? rawFrom : '/';
 
-  // Helper function to sync user with backend and redirect
+  // Helper function to sync user with backend and redirect for popup flow
   const processSuccessfulLogin = async (firebaseUser, redirectPath) => {
     try {
       setIsProcessing(true);
@@ -59,37 +57,8 @@ const GoogleLogin = () => {
     }
   };
 
-  // Check for redirect result on component mount (if coming back from a full-page redirect)
-  useEffect(() => {
-    let isMounted = true;
-
-    getRedirectResult(auth)
-      .then(async result => {
-        if (result?.user && isMounted) {
-          const savedPath =
-            sessionStorage.getItem('googleLoginRedirect') || targetDestination;
-          sessionStorage.removeItem('googleLoginRedirect');
-          await processSuccessfulLogin(result.user, savedPath);
-        }
-      })
-      .catch(error => {
-        if (isMounted) {
-          console.error('[AUTH] Redirect result error:', error);
-          if (error.code === 'auth/unauthorized-domain') {
-            alert(
-              'Configuration Error: This domain is not authorized for OAuth in Firebase Console.',
-            );
-          }
-        }
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
   const handleGoogleClick = async e => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (isProcessing) return;
 
     setIsProcessing(true);
@@ -100,24 +69,30 @@ const GoogleLogin = () => {
       console.log('[AUTH] Google popup succeeded for:', result.user.email);
       await processSuccessfulLogin(result.user, targetDestination);
     } catch (error) {
-      console.error('[AUTH] Google Sign-In error:', error.code, error.message);
-      setIsProcessing(false);
+      console.log('[AUTH] Google popup error code:', error.code, error.message);
 
-      if (error.code === 'auth/popup-blocked') {
-        console.log('[AUTH] Popup blocked, falling back to redirect...');
+      if (
+        error.code === 'auth/popup-blocked' ||
+        error.code === 'auth/cancelled-popup-request' ||
+        error.code === 'auth/popup-closed-by-user'
+      ) {
+        console.log('[AUTH] Popup blocked or closed, executing redirect fallback...');
         sessionStorage.setItem('googleLoginRedirect', targetDestination);
         try {
           await signInGoogleRedirect();
         } catch (redirectErr) {
           console.error('[AUTH] Redirect fallback failed:', redirectErr);
+          sessionStorage.removeItem('googleLoginRedirect');
+          setIsProcessing(false);
+          alert(`Google Sign-In failed: ${redirectErr.message}`);
         }
-      } else if (error.code === 'auth/popup-closed-by-user') {
-        console.log('[AUTH] User closed Google popup.');
       } else if (error.code === 'auth/unauthorized-domain') {
+        setIsProcessing(false);
         alert(
           'Configuration Error: This domain is not authorized in Firebase Console. Please add zapshift-client.vercel.app to Firebase Authorized Domains.',
         );
       } else {
+        setIsProcessing(false);
         alert(`Google Sign-In failed: ${error.message}`);
       }
     }

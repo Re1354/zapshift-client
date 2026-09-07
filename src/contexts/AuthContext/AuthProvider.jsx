@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
 import {
   createUserWithEmailAndPassword,
@@ -7,19 +8,14 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
   signInWithRedirect,
+  getRedirectResult,
   signOut,
   updateProfile,
-  setPersistence,
-  browserLocalPersistence,
+  browserPopupRedirectResolver,
 } from 'firebase/auth';
 
 import { AuthContext } from './AuthContext';
 import { auth } from '../../firebase/firebase.init';
-
-// Set Firebase auth persistence explicitly to browserLocalPersistence
-setPersistence(auth, browserLocalPersistence).catch(err => {
-  console.error('[AUTH] Failed to set auth persistence:', err);
-});
 
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({
@@ -40,20 +36,22 @@ const AuthProvider = ({ children }) => {
     return signInWithEmailAndPassword(auth, email, password);
   };
 
-  const signInGoogle = async () => {
+  const signInGoogle = () => {
     setLoading(true);
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      setUser(result.user);
-      return result;
-    } finally {
-      setLoading(false);
-    }
+    return signInWithPopup(
+      auth,
+      googleProvider,
+      browserPopupRedirectResolver,
+    );
   };
 
   const signInGoogleRedirect = () => {
     setLoading(true);
-    return signInWithRedirect(auth, googleProvider);
+    return signInWithRedirect(
+      auth,
+      googleProvider,
+      browserPopupRedirectResolver,
+    );
   };
 
   const logOut = () => {
@@ -66,12 +64,68 @@ const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    let isMounted = true;
+    const hasRedirect =
+      typeof window !== 'undefined' &&
+      !!sessionStorage.getItem('googleLoginRedirect');
+
+    // Check for redirect result on app initialization
+    getRedirectResult(auth, browserPopupRedirectResolver)
+      .then(async result => {
+        if (result?.user && isMounted) {
+          console.log('[AUTH] Redirect user authenticated:', result.user.email);
+          setUser(result.user);
+
+          // Sync user to backend using direct axios request
+          try {
+            const token = await result.user.getIdToken();
+            const userInfo = {
+              email: result.user.email,
+              displayName: result.user.displayName || '',
+              photoURL: result.user.photoURL || '',
+            };
+            await axios.post(
+              'https://zap-shift-server-bay-eight.vercel.app/users',
+              userInfo,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              },
+            );
+            console.log('[AUTH] Redirect user synced with backend.');
+          } catch (syncErr) {
+            console.warn(
+              '[AUTH] Backend sync notice (non-fatal):',
+              syncErr?.response?.data || syncErr?.message,
+            );
+          }
+        }
+      })
+      .catch(error => {
+        console.error('[AUTH] getRedirectResult error:', error);
+      })
+      .finally(() => {
+        if (hasRedirect && isMounted) {
+          setLoading(false);
+        }
+      });
+
     const unSubscribe = onAuthStateChanged(auth, currentUser => {
       console.log('[AUTH STATE CHANGED]', currentUser ? currentUser.email : 'No user');
-      setUser(currentUser);
-      setLoading(false);
+      const isRedirectPending =
+        typeof window !== 'undefined' &&
+        !!sessionStorage.getItem('googleLoginRedirect');
+
+      // If resolving a redirect, keep loading true until getRedirectResult resolves
+      if (!isRedirectPending || currentUser) {
+        setUser(currentUser);
+        setLoading(false);
+      }
     });
+
     return () => {
+      isMounted = false;
       unSubscribe();
     };
   }, []);
