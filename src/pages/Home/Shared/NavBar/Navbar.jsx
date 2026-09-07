@@ -24,10 +24,10 @@ const Navbar = () => {
   };
 
   const navLinkClass = ({ isActive }) =>
-    `whitespace-nowrap rounded-full px-3 py-1.5 text-[13px] font-medium transition ${
+    `whitespace-nowrap rounded-full px-3 py-1.5 text-[15px] font-semibold transition ${
       isActive
         ? 'bg-primary text-secondary font-bold'
-        : 'text-secondary/75 hover:bg-primary/50 hover:text-secondary'
+        : 'text-secondary/80 hover:bg-primary/50 hover:text-secondary'
     }`;
 
   const links = (
@@ -144,8 +144,8 @@ const Navbar = () => {
                   border-gray-200
                   px-4
                   py-2
-                  text-sm
-                  font-semibold
+                  text-[15px]
+                  font-bold
                   text-secondary
                   transition
                   hover:border-secondary/30
@@ -169,7 +169,7 @@ const Navbar = () => {
                   py-1.5
                   pl-4
                   pr-1.5
-                  text-sm
+                  text-[15px]
                   font-bold
                   text-secondary
                   transition
@@ -194,8 +194,8 @@ const Navbar = () => {
                   border-gray-200
                   px-4
                   py-2
-                  text-sm
-                  font-semibold
+                  text-[15px]
+                  font-bold
                   text-secondary
                   transition
                   hover:border-secondary/30
@@ -218,7 +218,7 @@ const Navbar = () => {
                   py-1.5
                   pl-4
                   pr-1.5
-                  text-sm
+                  text-[15px]
                   font-bold
                   text-secondary
                   transition
@@ -281,11 +281,11 @@ const Navbar = () => {
             {!user ? (
               <>
                 <li>
-                  <NavLink to="/login">Login</NavLink>
+                  <NavLink to="/login" className="text-[15px] font-semibold">Login</NavLink>
                 </li>
 
                 <li>
-                  <NavLink to="/register">Sign Up</NavLink>
+                  <NavLink to="/register" className="text-[15px] font-semibold">Sign Up</NavLink>
                 </li>
               </>
             ) : (
@@ -293,7 +293,7 @@ const Navbar = () => {
                 <button
                   onClick={handleLogOut}
                   type="button"
-                  className="text-left"
+                  className="text-left text-[15px] font-semibold"
                 >
                   Logout
                 </button>
@@ -304,7 +304,7 @@ const Navbar = () => {
               <button
                 onClick={handleRiderClick}
                 type="button"
-                className="text-left"
+                className="text-left text-[15px] font-semibold"
               >
                 Be a Rider
               </button>
