@@ -14,50 +14,45 @@ const GoogleLogin = () => {
 
   const from = location.state?.from?.pathname || '/';
 
-  const handleSignIn = async () => {
-    try {
-      // NOTE: We MUST NOT update React state before calling signInGoogle().
-      // Updating state makes the execution asynchronous, which breaks the browser's "user gesture" context 
-      // and causes aggressive popup blockers to block the Google Login popup.
-      const result = await signInGoogle();
+  const handleSignIn = () => {
+    // Calling signInGoogle synchronously (no async/await before it)
+    // guarantees that the browser recognizes the user gesture.
+    signInGoogle()
+      .then(async (result) => {
+        setIsProcessing(true);
+        console.log('Google login successful:', result.user);
 
-      // Now that the popup has succeeded, we can show the loading spinner for the backend request
-      setIsProcessing(true);
+        // Get Firebase ID token
+        const token = await result.user.getIdToken();
+        console.log('Firebase token received:', !!token);
 
-      console.log('Google login successful:', result.user);
+        const userInfo = {
+          email: result.user.email,
+          displayName: result.user.displayName,
+          photoURL: result.user.photoURL,
+        };
 
-      // Get Firebase ID token
-      const token = await result.user.getIdToken();
+        // Send token directly with this request
+        const res = await axiosSecure.post('/users', userInfo, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-      console.log('Firebase token received:', !!token);
-
-      const userInfo = {
-        email: result.user.email,
-        displayName: result.user.displayName,
-        photoURL: result.user.photoURL,
-      };
-
-      // Send token directly with this request
-      const res = await axiosSecure.post('/users', userInfo, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        console.log('User data has been stored:', res.data);
+        navigate(from, { replace: true });
+      })
+      .catch((error) => {
+        console.log('Google login error:', error);
+        console.log('Backend response:', error?.response?.data);
+        
+        if (error.code === 'auth/popup-blocked') {
+          alert('Your browser blocked the Google Login popup. Please allow popups for this site, or check if the domain is added to Firebase Authorized Domains.');
+        }
+      })
+      .finally(() => {
+        setIsProcessing(false);
       });
-
-      console.log('User data has been stored:', res.data);
-
-      navigate(from, { replace: true });
-    } catch (error) {
-      console.log('Google login error:', error);
-      console.log('Backend response:', error?.response?.data);
-      
-      // If the error is popup-blocked, we can show an alert or just let the console log it
-      if (error.code === 'auth/popup-blocked') {
-        alert('Your browser blocked the Google Login popup. Please allow popups for this site, or check if the domain is added to Firebase Authorized Domains.');
-      }
-    } finally {
-      setIsProcessing(false);
-    }
   };
 
   return (
