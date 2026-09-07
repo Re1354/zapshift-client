@@ -8,12 +8,16 @@ import {
   signInWithPopup,
   signOut,
   updateProfile,
+  browserPopupRedirectResolver
 } from 'firebase/auth';
 
 import { AuthContext } from './AuthContext';
 import { auth } from '../../firebase/firebase.init';
 
 const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({
+  prompt: 'select_account',
+});
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -30,7 +34,7 @@ const AuthProvider = ({ children }) => {
   };
 
   const signInGoogle = () => {
-    return signInWithPopup(auth, googleProvider);
+    return signInWithPopup(auth, googleProvider, browserPopupRedirectResolver);
   };
 
   const logOut = () => {
