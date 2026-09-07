@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 
 import useAuth from '../../../hooks/useAuth';
@@ -11,62 +11,80 @@ const GoogleLogin = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isProcessing, setIsProcessing] = useState(false);
+  const buttonRef = useRef(null);
 
   const from = location.state?.from?.pathname || '/';
 
-  const handleSignIn = () => {
-    // Calling signInGoogle synchronously (no async/await before it)
-    // guarantees that the browser recognizes the user gesture.
-    signInGoogle()
-      .then(async (result) => {
-        setIsProcessing(true);
-        console.log('Google login successful:', result.user);
+  const handleSignIn = useCallback(
+    (e) => {
+      // Prevent default to be safe
+      if (e) e.preventDefault();
 
-        // Get Firebase ID token
-        const token = await result.user.getIdToken();
-        console.log('Firebase token received:', !!token);
+      // Native DOM event guarantees synchronous execution for popup blockers
+      signInGoogle()
+        .then(async (result) => {
+          setIsProcessing(true);
+          console.log('Google login successful:', result.user);
 
-        const userInfo = {
-          email: result.user.email,
-          displayName: result.user.displayName,
-          photoURL: result.user.photoURL,
-        };
+          // Get Firebase ID token
+          const token = await result.user.getIdToken();
+          console.log('Firebase token received:', !!token);
 
-        // Send token directly with this request
-        const res = await axiosSecure.post('/users', userInfo, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          const userInfo = {
+            email: result.user.email,
+            displayName: result.user.displayName,
+            photoURL: result.user.photoURL,
+          };
+
+          // Send token directly with this request
+          const res = await axiosSecure.post('/users', userInfo, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          console.log('User data has been stored:', res.data);
+          navigate(from, { replace: true });
+        })
+        .catch((error) => {
+          console.log('Google login error:', error);
+          console.log('Backend response:', error?.response?.data);
+
+          if (error.code === 'auth/popup-blocked') {
+            alert(
+              'Your browser blocked the Google Login popup. Please allow popups for this site, or check if the domain is added to Firebase Authorized Domains.'
+            );
+          }
+        })
+        .finally(() => {
+          setIsProcessing(false);
         });
+    },
+    [signInGoogle, axiosSecure, from, navigate]
+  );
 
-        console.log('User data has been stored:', res.data);
-        navigate(from, { replace: true });
-      })
-      .catch((error) => {
-        console.log('Google login error:', error);
-        console.log('Backend response:', error?.response?.data);
-        
-        if (error.code === 'auth/popup-blocked') {
-          alert('Your browser blocked the Google Login popup. Please allow popups for this site, or check if the domain is added to Firebase Authorized Domains.');
-        }
-      })
-      .finally(() => {
-        setIsProcessing(false);
-      });
-  };
+  // Attach native event listener to bypass React's synthetic event batching delays
+  useEffect(() => {
+    const btn = buttonRef.current;
+    if (btn) {
+      btn.addEventListener('click', handleSignIn);
+      return () => btn.removeEventListener('click', handleSignIn);
+    }
+  }, [handleSignIn]);
 
   return (
     <div>
       <button
+        ref={buttonRef}
         type="button"
-        onClick={handleSignIn}
         disabled={isProcessing}
-        className="btn w-full border-[#e5e5e5] bg-white text-black"
+        className="btn w-full border-[#e5e5e5] bg-white text-black relative"
       >
         {isProcessing ? (
-          <span className="loading loading-spinner text-primary"></span>
+          <span className="loading loading-spinner text-primary pointer-events-none"></span>
         ) : (
           <svg
+            className="pointer-events-none"
             aria-label="Google logo"
             width="16"
             height="16"
@@ -94,7 +112,9 @@ const GoogleLogin = () => {
             </g>
           </svg>
         )}
-        {isProcessing ? 'Logging in...' : 'Login with Google'}
+        <span className="pointer-events-none">
+          {isProcessing ? 'Logging in...' : 'Login with Google'}
+        </span>
       </button>
     </div>
   );
