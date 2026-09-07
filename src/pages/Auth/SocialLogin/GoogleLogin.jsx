@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router';
+import { getRedirectResult, browserPopupRedirectResolver } from 'firebase/auth';
 
+import { auth } from '../../../firebase/firebase.init';
 import useAuth from '../../../hooks/useAuth';
 import useAxiosSecure from '../../../hooks/useAxiosSecure';
 
 const GoogleLogin = () => {
-  const { signInGoogle } = useAuth();
+  const { signInGoogle, signInGoogleRedirect } = useAuth();
   const axiosSecure = useAxiosSecure();
 
   const navigate = useNavigate();
@@ -15,55 +17,115 @@ const GoogleLogin = () => {
 
   const from = location.state?.from?.pathname || '/';
 
+  // Helper function to process successful Google login
+  const processSuccessfulLogin = async (user, redirectPath) => {
+    try {
+      setIsProcessing(true);
+      console.log('Google login successful:', user);
+
+      const token = await user.getIdToken();
+      console.log('Firebase token received:', !!token);
+
+      const userInfo = {
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+      };
+
+      const res = await axiosSecure.post('/users', userInfo, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      console.log('User data has been stored:', res.data);
+      navigate(redirectPath, { replace: true });
+    } catch (error) {
+      console.error('Error processing login backend:', error);
+      alert('Login succeeded, but failed to connect to backend server.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Check for redirect result on component mount
+  useEffect(() => {
+    let mounted = true;
+    
+    const checkRedirect = async () => {
+      try {
+        setIsProcessing(true);
+        // Using browserPopupRedirectResolver ensures it resolves correctly even with third-party cookie restrictions
+        const result = await getRedirectResult(auth, browserPopupRedirectResolver);
+        
+        if (result && mounted) {
+          const savedPath = sessionStorage.getItem('googleLoginRedirect') || '/';
+          sessionStorage.removeItem('googleLoginRedirect');
+          await processSuccessfulLogin(result.user, savedPath);
+        } else if (mounted) {
+          setIsProcessing(false);
+        }
+      } catch (error) {
+        if (mounted) {
+          setIsProcessing(false);
+          console.error('Redirect result error:', error);
+          if (error.code === 'auth/unauthorized-domain') {
+            alert('Configuration Error: This domain is not authorized for OAuth operations. Please add exactly this domain (without https://) to Firebase Authorized Domains.');
+          } else {
+            alert('Google Login redirect failed. Please try again or use Email/Password.');
+          }
+        }
+      }
+    };
+
+    checkRedirect();
+    
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   const handleSignIn = useCallback(
     (e) => {
-      // Prevent default to be safe
       if (e) e.preventDefault();
+      setIsProcessing(true);
 
-      // Native DOM event guarantees synchronous execution for popup blockers
+      // Attempt primary method: Popup
       signInGoogle()
-        .then(async (result) => {
-          setIsProcessing(true);
-          console.log('Google login successful:', result.user);
-
-          // Get Firebase ID token
-          const token = await result.user.getIdToken();
-          console.log('Firebase token received:', !!token);
-
-          const userInfo = {
-            email: result.user.email,
-            displayName: result.user.displayName,
-            photoURL: result.user.photoURL,
-          };
-
-          // Send token directly with this request
-          const res = await axiosSecure.post('/users', userInfo, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-
-          console.log('User data has been stored:', res.data);
-          navigate(from, { replace: true });
+        .then((result) => {
+          return processSuccessfulLogin(result.user, from);
         })
         .catch((error) => {
-          console.log('Google login error:', error);
-          console.log('Backend response:', error?.response?.data);
-
-          if (error.code === 'auth/popup-blocked') {
-            alert(
-              'Your browser blocked the Google Login popup. Please allow popups for this site, or check if the domain is added to Firebase Authorized Domains.'
-            );
+          console.log('Popup login failed, analyzing error:', error.code);
+          
+          if (
+            error.code === 'auth/popup-blocked' ||
+            error.code === 'auth/cancelled-popup-request' ||
+            error.code === 'auth/popup-closed-by-user'
+          ) {
+            console.log('Popup blocked or closed, falling back to redirect...');
+            // Save the intended destination before redirecting
+            sessionStorage.setItem('googleLoginRedirect', from);
+            
+            // Execute the fallback: Redirect
+            signInGoogleRedirect().catch(redirectErr => {
+              setIsProcessing(false);
+              console.error('Redirect fallback failed immediately:', redirectErr);
+            });
+          } else if (error.code === 'auth/unauthorized-domain') {
+            setIsProcessing(false);
+            alert('Configuration Error: This domain is not authorized in Firebase Console. Please add exactly this domain (no https://) to Firebase Authorized Domains.');
+          } else {
+            setIsProcessing(false);
+            console.error('Unhandled Google login error:', error);
+            alert(`Login failed: ${error.message}`);
           }
-        })
-        .finally(() => {
-          setIsProcessing(false);
         });
     },
-    [signInGoogle, axiosSecure, from, navigate]
+    [signInGoogle, signInGoogleRedirect, from]
   );
 
-  // Attach native event listener to bypass React's synthetic event batching delays
+  // Attach native event listener
   useEffect(() => {
     const btn = buttonRef.current;
     if (btn) {

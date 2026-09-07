@@ -6,6 +6,7 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signInWithPopup,
+  signInWithRedirect,
   signOut,
   updateProfile,
   browserPopupRedirectResolver
@@ -37,6 +38,10 @@ const AuthProvider = ({ children }) => {
     return signInWithPopup(auth, googleProvider, browserPopupRedirectResolver);
   };
 
+  const signInGoogleRedirect = () => {
+    return signInWithRedirect(auth, googleProvider);
+  };
+
   const logOut = () => {
     setLoading(true);
     return signOut(auth);
@@ -60,6 +65,7 @@ const AuthProvider = ({ children }) => {
     registerUser,
     signInUser,
     signInGoogle,
+    signInGoogleRedirect,
     user,
     loading,
     logOut,
