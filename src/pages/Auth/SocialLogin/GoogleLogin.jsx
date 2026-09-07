@@ -16,8 +16,13 @@ const GoogleLogin = () => {
 
   const handleSignIn = async () => {
     try {
-      setIsProcessing(true);
+      // NOTE: We MUST NOT update React state before calling signInGoogle().
+      // Updating state makes the execution asynchronous, which breaks the browser's "user gesture" context 
+      // and causes aggressive popup blockers to block the Google Login popup.
       const result = await signInGoogle();
+
+      // Now that the popup has succeeded, we can show the loading spinner for the backend request
+      setIsProcessing(true);
 
       console.log('Google login successful:', result.user);
 
