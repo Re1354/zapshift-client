@@ -106,27 +106,29 @@ const AuthProvider = ({ children }) => {
       typeof window !== 'undefined' &&
       !!sessionStorage.getItem('googleLoginRedirect');
 
-    // Check for redirect result on app initialization
-    getRedirectResult(auth, browserPopupRedirectResolver)
-      .then(async result => {
-        if (result?.user && isMounted) {
-          console.log('[AUTH] Redirect user authenticated:', result.user.email);
-          setUser(result.user);
-          await syncUserWithBackend(result.user);
-        }
-      })
-      .catch(error => {
-        console.error('[AUTH] getRedirectResult error:', error);
-      })
-      .finally(() => {
-        // Always clean up redirect flag so loading state is never locked
-        if (typeof window !== 'undefined') {
-          sessionStorage.removeItem('googleLoginRedirect');
-        }
-        if (hasRedirect && isMounted) {
-          setLoading(false);
-        }
-      });
+    // Check for redirect result on app initialization ONLY if a redirect was pending
+    if (hasRedirect) {
+      getRedirectResult(auth, browserPopupRedirectResolver)
+        .then(async result => {
+          if (result?.user && isMounted) {
+            console.log('[AUTH] Redirect user authenticated:', result.user.email);
+            setUser(result.user);
+            await syncUserWithBackend(result.user);
+          }
+        })
+        .catch(error => {
+          console.error('[AUTH] getRedirectResult error:', error);
+        })
+        .finally(() => {
+          // Always clean up redirect flag so loading state is never locked
+          if (typeof window !== 'undefined') {
+            sessionStorage.removeItem('googleLoginRedirect');
+          }
+          if (isMounted) {
+            setLoading(false);
+          }
+        });
+    }
 
     const unSubscribe = onAuthStateChanged(auth, currentUser => {
       console.log('[AUTH STATE CHANGED]', currentUser ? currentUser.email : 'No user');

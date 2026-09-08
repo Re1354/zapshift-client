@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-import axios from 'axios';
+import Swal from 'sweetalert2';
 
 import useAuth from '../../../hooks/useAuth';
 
 const GoogleLogin = () => {
-  const { signInGoogle, signInGoogleRedirect } = useAuth();
+  const { signInGoogle } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -29,28 +29,32 @@ const GoogleLogin = () => {
       console.log('[AUTH] Google popup error code:', error.code, error.message);
 
       if (
-        error.code === 'auth/popup-blocked' ||
-        error.code === 'auth/cancelled-popup-request' ||
-        error.code === 'auth/popup-closed-by-user'
+        error.code === 'auth/popup-closed-by-user' ||
+        error.code === 'auth/cancelled-popup-request'
       ) {
-        console.log('[AUTH] Popup blocked or closed, executing redirect fallback...');
-        sessionStorage.setItem('googleLoginRedirect', targetDestination);
-        try {
-          await signInGoogleRedirect();
-        } catch (redirectErr) {
-          console.error('[AUTH] Redirect fallback failed:', redirectErr);
-          sessionStorage.removeItem('googleLoginRedirect');
-          setIsProcessing(false);
-          alert(`Google Sign-In failed: ${redirectErr.message}`);
-        }
+        // User closed or dismissed the popup - do not trigger redirect fallback
+        console.log('[AUTH] Google popup was closed or cancelled by user.');
+      } else if (error.code === 'auth/popup-blocked') {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Popup Blocked',
+          text: 'Please allow popups for this site in your browser to sign in with Google.',
+          confirmButtonColor: '#003b40',
+        });
       } else if (error.code === 'auth/unauthorized-domain') {
-        setIsProcessing(false);
-        alert(
-          'Configuration Error: This domain is not authorized in Firebase Console. Please add zapshift-client.vercel.app to Firebase Authorized Domains.',
-        );
+        Swal.fire({
+          icon: 'error',
+          title: 'Unauthorized Domain',
+          text: 'This domain is not authorized in Firebase Console. Please add zapshift-client.vercel.app to Firebase Authorized Domains.',
+          confirmButtonColor: '#003b40',
+        });
       } else {
-        setIsProcessing(false);
-        alert(`Google Sign-In failed: ${error.message}`);
+        Swal.fire({
+          icon: 'error',
+          title: 'Sign-In Error',
+          text: error.message || 'Failed to sign in with Google.',
+          confirmButtonColor: '#003b40',
+        });
       }
     } finally {
       setIsProcessing(false);
