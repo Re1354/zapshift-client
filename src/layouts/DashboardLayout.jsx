@@ -617,12 +617,7 @@ const DashboardLayout = () => {
                 </Link>
               </div>
 
-              {/* Desktop Greeting */}
-              <div className="hidden lg:block">
-                <p className="text-xs font-semibold text-secondary">
-                  ZapShift Dashboard
-                </p>
-              </div>
+             
             </div>
 
             {/* Right: Role Badge + Notification + User Info */}
