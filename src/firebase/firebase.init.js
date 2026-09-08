@@ -4,18 +4,19 @@ import { getAnalytics } from 'firebase/analytics';
 import {
   initializeAuth,
   getAuth,
+  indexedDBLocalPersistence,
   browserLocalPersistence,
   browserPopupRedirectResolver,
 } from 'firebase/auth';
 
-// Your web app's Firebase configuration
+// Your web app's Firebase configuration with dual-env fallback support
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_apiKey,
-  authDomain: import.meta.env.VITE_authDomain,
-  projectId: import.meta.env.VITE_projectId,
-  storageBucket: import.meta.env.VITE_storageBucket,
-  messagingSenderId: import.meta.env.VITE_messagingSenderId,
-  appId: import.meta.env.VITE_appId,
+  apiKey: import.meta.env.VITE_apiKey || import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_authDomain || import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_projectId || import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_storageBucket || import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_messagingSenderId || import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_appId || import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 // Initialize Firebase
@@ -30,11 +31,11 @@ if (typeof window !== 'undefined') {
   }
 }
 
-// Initialize Firebase Authentication with explicit persistence and popup/redirect resolver
+// Initialize Firebase Authentication with explicit persistence (IndexedDB first, fallback to localStorage)
 let auth;
 try {
   auth = initializeAuth(app, {
-    persistence: [browserLocalPersistence],
+    persistence: [indexedDBLocalPersistence, browserLocalPersistence],
     popupRedirectResolver: browserPopupRedirectResolver,
   });
 } catch (e) {

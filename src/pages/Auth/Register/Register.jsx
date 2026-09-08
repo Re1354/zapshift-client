@@ -18,7 +18,7 @@ const Register = () => {
     formState: { errors },
   } = useForm();
 
-  const { user, loading, registerUser, updateUserProfile } = useAuth();
+  const { user, loading, registerUser, updateUserProfile, syncUserWithBackend } = useAuth();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -99,17 +99,21 @@ const Register = () => {
         photoURL: photoURL,
       };
 
-      axiosSecure.post('/users', userInfo).then(res => {
-        if (res.data.insertedId) {
-          console.log('User created in the database');
-        }
-      });
-
       await updateUserProfile(userProfile);
-
       console.log('User profile updated successfully');
 
-      // 5. Redirect to original destination
+      // 5. Ensure user is synced to MongoDB database before navigating
+      try {
+        if (syncUserWithBackend && auth.currentUser) {
+          await syncUserWithBackend(auth.currentUser);
+        } else {
+          await axiosSecure.post('/users', userInfo);
+        }
+      } catch (syncErr) {
+        console.warn('Registration user sync warning:', syncErr);
+      }
+
+      // 6. Redirect to original destination
       navigate(targetDestination, { replace: true });
     } catch (error) {
       console.error('Registration error:', error);

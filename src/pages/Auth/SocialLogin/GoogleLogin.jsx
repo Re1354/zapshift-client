@@ -13,50 +13,6 @@ const GoogleLogin = () => {
   const rawFrom = location.state?.from?.pathname;
   const targetDestination = rawFrom && rawFrom !== '/login' ? rawFrom : '/';
 
-  // Helper function to sync user with backend and redirect for popup flow
-  const processSuccessfulLogin = async (firebaseUser, redirectPath) => {
-    try {
-      setIsProcessing(true);
-      console.log('[AUTH] Processing Google login for:', firebaseUser.email);
-
-      const token = await firebaseUser.getIdToken();
-      console.log('[AUTH] Firebase ID token acquired.');
-
-      const userInfo = {
-        email: firebaseUser.email,
-        displayName: firebaseUser.displayName || '',
-        photoURL: firebaseUser.photoURL || '',
-      };
-
-      // Sync user to backend using direct axios request (no auto-logout interceptor)
-      try {
-        const res = await axios.post(
-          'https://zap-shift-server-bay-eight.vercel.app/users',
-          userInfo,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-        console.log('[AUTH] User record synced with backend:', res.data);
-      } catch (backendError) {
-        console.warn(
-          '[AUTH] Backend user sync warning (non-fatal):',
-          backendError.response?.data || backendError.message,
-        );
-      }
-
-      console.log('[AUTH] Navigating to:', redirectPath);
-      navigate(redirectPath, { replace: true });
-    } catch (error) {
-      console.error('[AUTH] Login processing error:', error);
-      navigate(redirectPath, { replace: true });
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
   const handleGoogleClick = async e => {
     if (e) e.preventDefault();
     if (isProcessing) return;
@@ -67,7 +23,8 @@ const GoogleLogin = () => {
       console.log('[AUTH] Starting Google signInWithPopup...');
       const result = await signInGoogle();
       console.log('[AUTH] Google popup succeeded for:', result.user.email);
-      await processSuccessfulLogin(result.user, targetDestination);
+      console.log('[AUTH] Navigating to:', targetDestination);
+      navigate(targetDestination, { replace: true });
     } catch (error) {
       console.log('[AUTH] Google popup error code:', error.code, error.message);
 
@@ -95,6 +52,8 @@ const GoogleLogin = () => {
         setIsProcessing(false);
         alert(`Google Sign-In failed: ${error.message}`);
       }
+    } finally {
+      setIsProcessing(false);
     }
   };
 

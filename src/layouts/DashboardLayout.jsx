@@ -10,10 +10,9 @@ const NavItem = ({ to, end, icon, label, onClick }) => (
     end={end}
     onClick={onClick}
     className={({ isActive }) =>
-      `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
-        isActive
-          ? 'bg-primary text-secondary font-bold shadow-xs'
-          : 'text-gray-600 hover:bg-gray-100 hover:text-secondary'
+      `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${isActive
+        ? 'bg-primary text-secondary font-bold shadow-xs'
+        : 'text-gray-600 hover:bg-gray-100 hover:text-secondary'
       }`
     }
   >
@@ -321,20 +320,18 @@ const DashboardLayout = () => {
 
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 z-50 bg-black/50 backdrop-blur-xs transition-opacity duration-300 lg:hidden ${
-          isMobileMenuOpen
-            ? 'opacity-100 pointer-events-auto'
-            : 'opacity-0 pointer-events-none'
-        }`}
+        className={`fixed inset-0 z-50 bg-black/50 backdrop-blur-xs transition-opacity duration-300 lg:hidden ${isMobileMenuOpen
+          ? 'opacity-100 pointer-events-auto'
+          : 'opacity-0 pointer-events-none'
+          }`}
         onClick={() => setIsMobileMenuOpen(false)}
         aria-hidden="true"
       />
 
       {/* Mobile Drawer */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex h-full w-[270px] max-w-[85vw] flex-col border-r border-gray-100 bg-white shadow-2xl transition-transform duration-300 ease-in-out lg:hidden ${
-          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 flex h-full w-[270px] max-w-[85vw] flex-col border-r border-gray-100 bg-white shadow-2xl transition-transform duration-300 ease-in-out lg:hidden ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
         aria-label="Mobile Navigation"
       >
         {/* Drawer Header */}
@@ -617,7 +614,6 @@ const DashboardLayout = () => {
                 </Link>
               </div>
 
-             
             </div>
 
             {/* Right: Role Badge + Notification + User Info */}

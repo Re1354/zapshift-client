@@ -13,7 +13,7 @@ const Login = () => {
     formState: { errors },
   } = useForm();
 
-  const { user, loading, signInUser } = useAuth();
+  const { user, loading, signInUser, syncUserWithBackend } = useAuth();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -38,17 +38,18 @@ const Login = () => {
     }
   }, [user, loading, targetDestination, navigate]);
 
-  const handleLogin = data => {
-    signInUser(data.email, data.password)
-      .then(result => {
-        console.log('Login successful:', result.user);
-
-        // Go back to the page user originally wanted
-        navigate(targetDestination, { replace: true });
-      })
-      .catch(error => {
-        console.log('Login error:', error);
-      });
+  const handleLogin = async data => {
+    try {
+      const result = await signInUser(data.email, data.password);
+      console.log('Login successful:', result.user);
+      if (syncUserWithBackend && result.user) {
+        await syncUserWithBackend(result.user);
+      }
+      // Go back to the page user originally wanted
+      navigate(targetDestination, { replace: true });
+    } catch (error) {
+      console.log('Login error:', error);
+    }
   };
 
   // Wait until Firebase restores auth state before rendering login form

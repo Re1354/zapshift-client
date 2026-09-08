@@ -26,6 +26,35 @@ const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Sync user with backend MongoDB database safely
+  const syncUserWithBackend = async firebaseUser => {
+    if (!firebaseUser?.email) return;
+    try {
+      const token = await firebaseUser.getIdToken();
+      const userInfo = {
+        email: firebaseUser.email,
+        displayName: firebaseUser.displayName || '',
+        photoURL: firebaseUser.photoURL || '',
+      };
+      await axios.post(
+        'https://zap-shift-server-bay-eight.vercel.app/users',
+        userInfo,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          timeout: 8000,
+        },
+      );
+      console.log('[AUTH] User record synced with backend:', firebaseUser.email);
+    } catch (syncErr) {
+      console.warn(
+        '[AUTH] Backend user sync warning (non-fatal):',
+        syncErr?.response?.data || syncErr?.message,
+      );
+    }
+  };
+
   const registerUser = (email, password) => {
     setLoading(true);
     return createUserWithEmailAndPassword(auth, email, password);
@@ -36,13 +65,21 @@ const AuthProvider = ({ children }) => {
     return signInWithEmailAndPassword(auth, email, password);
   };
 
-  const signInGoogle = () => {
+  const signInGoogle = async () => {
     setLoading(true);
-    return signInWithPopup(
-      auth,
-      googleProvider,
-      browserPopupRedirectResolver,
-    );
+    try {
+      const result = await signInWithPopup(
+        auth,
+        googleProvider,
+        browserPopupRedirectResolver,
+      );
+      if (result?.user) {
+        await syncUserWithBackend(result.user);
+      }
+      return result;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const signInGoogleRedirect = () => {
@@ -75,37 +112,17 @@ const AuthProvider = ({ children }) => {
         if (result?.user && isMounted) {
           console.log('[AUTH] Redirect user authenticated:', result.user.email);
           setUser(result.user);
-
-          // Sync user to backend using direct axios request
-          try {
-            const token = await result.user.getIdToken();
-            const userInfo = {
-              email: result.user.email,
-              displayName: result.user.displayName || '',
-              photoURL: result.user.photoURL || '',
-            };
-            await axios.post(
-              'https://zap-shift-server-bay-eight.vercel.app/users',
-              userInfo,
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              },
-            );
-            console.log('[AUTH] Redirect user synced with backend.');
-          } catch (syncErr) {
-            console.warn(
-              '[AUTH] Backend sync notice (non-fatal):',
-              syncErr?.response?.data || syncErr?.message,
-            );
-          }
+          await syncUserWithBackend(result.user);
         }
       })
       .catch(error => {
         console.error('[AUTH] getRedirectResult error:', error);
       })
       .finally(() => {
+        // Always clean up redirect flag so loading state is never locked
+        if (typeof window !== 'undefined') {
+          sessionStorage.removeItem('googleLoginRedirect');
+        }
         if (hasRedirect && isMounted) {
           setLoading(false);
         }
@@ -113,14 +130,16 @@ const AuthProvider = ({ children }) => {
 
     const unSubscribe = onAuthStateChanged(auth, currentUser => {
       console.log('[AUTH STATE CHANGED]', currentUser ? currentUser.email : 'No user');
-      const isRedirectPending =
-        typeof window !== 'undefined' &&
-        !!sessionStorage.getItem('googleLoginRedirect');
-
-      // If resolving a redirect, keep loading true until getRedirectResult resolves
-      if (!isRedirectPending || currentUser) {
+      if (isMounted) {
         setUser(currentUser);
-        setLoading(false);
+        const isRedirectPending =
+          typeof window !== 'undefined' &&
+          !!sessionStorage.getItem('googleLoginRedirect');
+
+        // If resolving a redirect, keep loading true until getRedirectResult resolves
+        if (!isRedirectPending || currentUser) {
+          setLoading(false);
+        }
       }
     });
 
@@ -135,6 +154,7 @@ const AuthProvider = ({ children }) => {
     signInUser,
     signInGoogle,
     signInGoogleRedirect,
+    syncUserWithBackend,
     user,
     loading,
     logOut,

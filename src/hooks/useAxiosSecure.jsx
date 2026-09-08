@@ -35,21 +35,48 @@ const useAxiosSecure = () => {
 
     const resInterceptor = axiosSecure.interceptors.response.use(
       response => response,
-      error => {
-        console.log('Axios Secure Error:', error);
-
+      async error => {
+        const originalRequest = error.config;
         const statusCode = error.response?.status;
-        const requestUrl = error.config?.url || '';
+        const requestUrl = originalRequest?.url || '';
 
-        // Avoid logging out during user creation or auth synchronization
-        if ((statusCode === 401 || statusCode === 403) && !requestUrl.includes('/users')) {
-          logOut()
-            .then(() => {
-              navigate('/login');
-            })
-            .catch(logoutError => {
-              console.error('Logout error:', logoutError);
-            });
+        // If 401 (e.g. token expired after 60m), attempt silent token refresh and retry once
+        if (
+          statusCode === 401 &&
+          originalRequest &&
+          !originalRequest._retry &&
+          !requestUrl.includes('/users')
+        ) {
+          const currentUser = auth.currentUser || user;
+          if (currentUser) {
+            originalRequest._retry = true;
+            try {
+              console.log('[AXIOS] 401 received, refreshing token and retrying request...');
+              const freshToken = await currentUser.getIdToken(true);
+              originalRequest.headers.Authorization = `Bearer ${freshToken}`;
+              return axiosSecure(originalRequest);
+            } catch (refreshErr) {
+              console.error('[AXIOS] Token refresh attempt failed:', refreshErr);
+            }
+          }
+        }
+
+        // Only log out if 403 or persistent 401 after retry, excluding /users sync
+        if (
+          (statusCode === 401 || statusCode === 403) &&
+          !requestUrl.includes('/users')
+        ) {
+          const currentUser = auth.currentUser || user;
+          if (!currentUser || originalRequest?._retry) {
+            console.warn('[AXIOS] Session invalidated, logging out to /login...');
+            logOut()
+              .then(() => {
+                navigate('/login');
+              })
+              .catch(logoutError => {
+                console.error('Logout error:', logoutError);
+              });
+          }
         }
 
         return Promise.reject(error);
