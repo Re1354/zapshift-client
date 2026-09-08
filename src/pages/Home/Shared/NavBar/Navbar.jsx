@@ -9,6 +9,8 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { role } = useRole();
 
+  const isRider = user && role === 'rider';
+
   const handleLogOut = () => {
     logOut()
       .then(() => {
@@ -62,17 +64,23 @@ const Navbar = () => {
         </NavLink>
       </li>
 
-      <li>
-        <NavLink to="/rider" className={navLinkClass}>
-          Be a Rider
-        </NavLink>
-      </li>
+      {/* Hide Be a Rider for logged-in riders */}
+      {!isRider && (
+        <li>
+          <NavLink to="/rider" className={navLinkClass}>
+            Be a Rider
+          </NavLink>
+        </li>
+      )}
 
-      <li>
-        <NavLink to="/send-parcel" className={navLinkClass}>
-          Send Parcel
-        </NavLink>
-      </li>
+      {/* Hide Send Parcel for logged-in riders */}
+      {!isRider && (
+        <li>
+          <NavLink to="/send-parcel" className={navLinkClass}>
+            Send Parcel
+          </NavLink>
+        </li>
+      )}
 
       {user && (
         <>
@@ -83,12 +91,14 @@ const Navbar = () => {
             </NavLink>
           </li>
 
-          {/* My Parcels */}
-          <li>
-            <NavLink to="/dashboard/my-parcels" className={navLinkClass}>
-              My Parcels
-            </NavLink>
-          </li>
+          {/* My Parcels - Hide for logged-in riders */}
+          {!isRider && (
+            <li>
+              <NavLink to="/dashboard/my-parcels" className={navLinkClass}>
+                My Parcels
+              </NavLink>
+            </li>
+          )}
         </>
       )}
     </>
@@ -155,32 +165,59 @@ const Navbar = () => {
                 Logout
               </button>
 
-              {/* Be a Rider */}
-              <button
-                onClick={handleRiderClick}
-                type="button"
-                className="
-                  flex
-                  items-center
-                  gap-2
-                  whitespace-nowrap
-                  rounded-xl
-                  bg-primary
-                  py-1.5
-                  pl-4
-                  pr-1.5
-                  text-[15px]
-                  font-bold
-                  text-secondary
-                  transition
-                  hover:brightness-95
-                "
-              >
-                <span>Be a Rider</span>
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#202020] text-xs font-bold text-primary">
-                  ↗
-                </span>
-              </button>
+              {/* Right CTA Button: Be a Rider for non-riders, or Dashboard for riders */}
+              {!isRider ? (
+                <button
+                  onClick={handleRiderClick}
+                  type="button"
+                  className="
+                    flex
+                    items-center
+                    gap-2
+                    whitespace-nowrap
+                    rounded-xl
+                    bg-primary
+                    py-1.5
+                    pl-4
+                    pr-1.5
+                    text-[15px]
+                    font-bold
+                    text-secondary
+                    transition
+                    hover:brightness-95
+                  "
+                >
+                  <span>Be a Rider</span>
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#202020] text-xs font-bold text-primary">
+                    ↗
+                  </span>
+                </button>
+              ) : (
+                <NavLink
+                  to="/dashboard"
+                  className="
+                    flex
+                    items-center
+                    gap-2
+                    whitespace-nowrap
+                    rounded-xl
+                    bg-primary
+                    py-1.5
+                    pl-4
+                    pr-1.5
+                    text-[15px]
+                    font-bold
+                    text-secondary
+                    transition
+                    hover:brightness-95
+                  "
+                >
+                  <span>Dashboard</span>
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#202020] text-xs font-bold text-primary">
+                    ↗
+                  </span>
+                </NavLink>
+              )}
             </>
           ) : (
             <>
@@ -300,15 +337,17 @@ const Navbar = () => {
               </li>
             )}
 
-            <li>
-              <button
-                onClick={handleRiderClick}
-                type="button"
-                className="text-left text-[15px] font-semibold"
-              >
-                Be a Rider
-              </button>
-            </li>
+            {!isRider && (
+              <li>
+                <button
+                  onClick={handleRiderClick}
+                  type="button"
+                  className="text-left text-[15px] font-semibold"
+                >
+                  Be a Rider
+                </button>
+              </li>
+            )}
           </ul>
         </div>
       </div>
