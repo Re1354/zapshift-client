@@ -7,20 +7,26 @@ import 'leaflet/dist/leaflet.css';
 
 import { useLoaderData } from 'react-router';
 
-// Custom SVG location-pin icon (fixes broken default Leaflet icon in Vite)
-const locationPinIcon = L.divIcon({
-  className: '',
-  html: `
-    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36" fill="none">
-      <path d="M14 0C6.268 0 0 6.268 0 14c0 9.333 14 22 14 22S28 23.333 28 14C28 6.268 21.732 0 14 0z" fill="#CAEB45"/>
-      <circle cx="14" cy="14" r="6" fill="#202020"/>
-      <circle cx="14" cy="14" r="3" fill="#CAEB45"/>
-    </svg>
-  `,
-  iconSize: [28, 36],
-  iconAnchor: [14, 36],
-  popupAnchor: [0, -38],
-});
+// Custom icon factory — creates a pin + district-name label (matches original look)
+const createMarkerIcon = districtName =>
+  L.divIcon({
+    className: '',
+    html: `
+      <div style="display:flex;align-items:center;gap:4px;white-space:nowrap;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="30" viewBox="0 0 28 36" fill="none" style="flex-shrink:0;filter:drop-shadow(0 2px 3px rgba(0,0,0,0.25))">
+          <path d="M14 0C6.268 0 0 6.268 0 14c0 9.333 14 22 14 22S28 23.333 28 14C28 6.268 21.732 0 14 0z" fill="#4CAF50"/>
+          <circle cx="14" cy="14" r="6" fill="white"/>
+          <circle cx="14" cy="14" r="3" fill="#4CAF50"/>
+        </svg>
+        <span style="font-size:11px;font-weight:600;color:#202020;background:rgba(255,255,255,0.85);padding:1px 5px;border-radius:4px;line-height:1.4;">
+          ${districtName}
+        </span>
+      </div>
+    `,
+    iconSize: null,
+    iconAnchor: [11, 30],
+    popupAnchor: [50, -20],
+  });
 
 const Coverage = () => {
   const serviceCenters = useLoaderData();
@@ -173,7 +179,7 @@ const Coverage = () => {
                 <Marker
                   key={`${center.region}-${center.district}`}
                   position={[Number(center.latitude), Number(center.longitude)]}
-                  icon={locationPinIcon}
+                  icon={createMarkerIcon(center.district)}
                   eventHandlers={{
                     mouseover: e => {
                       e.target.openPopup();
