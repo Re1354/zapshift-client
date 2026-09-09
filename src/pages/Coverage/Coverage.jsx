@@ -1,10 +1,26 @@
 import React, { useRef, useState } from 'react';
 
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
 
 import 'leaflet/dist/leaflet.css';
 
 import { useLoaderData } from 'react-router';
+
+// Custom SVG location-pin icon (fixes broken default Leaflet icon in Vite)
+const locationPinIcon = L.divIcon({
+  className: '',
+  html: `
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36" fill="none">
+      <path d="M14 0C6.268 0 0 6.268 0 14c0 9.333 14 22 14 22S28 23.333 28 14C28 6.268 21.732 0 14 0z" fill="#CAEB45"/>
+      <circle cx="14" cy="14" r="6" fill="#202020"/>
+      <circle cx="14" cy="14" r="3" fill="#CAEB45"/>
+    </svg>
+  `,
+  iconSize: [28, 36],
+  iconAnchor: [14, 36],
+  popupAnchor: [0, -38],
+});
 
 const Coverage = () => {
   const serviceCenters = useLoaderData();
@@ -157,6 +173,7 @@ const Coverage = () => {
                 <Marker
                   key={`${center.region}-${center.district}`}
                   position={[Number(center.latitude), Number(center.longitude)]}
+                  icon={locationPinIcon}
                   eventHandlers={{
                     mouseover: e => {
                       e.target.openPopup();
